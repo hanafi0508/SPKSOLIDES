@@ -3,7 +3,7 @@
     <ul class="nav flex-column">
 
         <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="/pages/dashboard.php">
+            <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/dashboard.php">
                 Dashboard
             </a>
         </li>
@@ -13,19 +13,19 @@
             <hr>
 
             <li class="nav-item mt-2">
-                <a class="nav-link text-white" href="/pages/kriteria/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/kriteria/index.php">
                     Kriteria
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="/pages/supplier/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/supplier/index.php">
                     Supplier
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="/pages/proyek/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/proyek/index.php">
                     Proyek
                 </a>
             </li>
@@ -33,25 +33,25 @@
             <hr>
 
             <li class="nav-item mt-2">
-                <a class="nav-link text-white" href="/pages/alternatif/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/alternatif/index.php">
                     Alternatif
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="/pages/penilaian/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/penilaian/index.php">
                     Penilaian
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="/pages/ahp/input_perbandingan.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/ahp/input_perbandingan.php">
                     AHP
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="/pages/fahp/input_perbandingan.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/fahp/input_perbandingan.php">
                     F-AHP
                 </a>
             </li>
@@ -63,13 +63,13 @@
             <hr>
 
             <li class="nav-item mt-2">
-                <a class="nav-link text-white" href="/pages/ranking/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/ranking/index.php">
                     Ranking
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="/pages/laporan/index.php">
+                <a class="nav-link text-white" href="<?= BASE_URL; ?>/pages/laporan/index.php">
                     Laporan
                 </a>
             </li>

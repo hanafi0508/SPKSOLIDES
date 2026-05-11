@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>SPK Supplier</title>
-
-<link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/css/custom.css" rel="stylesheet">
+<?php require_once __DIR__ . '/../config/config.php'; ?>
+<link href="<?= BASE_URL; ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="<?= BASE_URL; ?>/assets/css/custom.css" rel="stylesheet">
 </head>
 <body>
 

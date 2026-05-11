@@ -8,7 +8,7 @@
                 <?= $_SESSION['nama_user']; ?>
             </span>
 
-            <a href="../auth/logout.php" class="btn btn-danger btn-sm">
+            <a href="<?= BASE_URL; ?>/auth/logout.php" class="btn btn-danger btn-sm">
                 Logout
             </a>
         </div>
