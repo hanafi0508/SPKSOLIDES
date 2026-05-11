@@ -1,1 +1,3 @@
-define('BASE_URL', 'http://localhost/rafi');
+<?php
+
+define('BASE_URL', 'http://localhost/spksolides');

@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../config/config.php'; ?>
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
 
@@ -8,7 +9,7 @@
                 <?= $_SESSION['nama_user']; ?>
             </span>
 
-            <a href="<?= BASE_URL; ?>/auth/logout.php" class="btn btn-danger btn-sm">
+            <a href="<?php echo BASE_URL; ?>/auth/logout.php" class="btn btn-danger btn-sm">
                 Logout
             </a>
         </div>
