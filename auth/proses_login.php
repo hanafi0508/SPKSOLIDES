@@ -17,7 +17,7 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
 
-if ($user && password_verify($password, $user['password'])) {
+if ($user && $password === $user['password']) {
     $_SESSION['id_user']   = $user['id_user'];
     $_SESSION['nama_user'] = $user['nama_user'];
     $_SESSION['level']     = $user['level'];

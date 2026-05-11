@@ -104,3 +104,5 @@ CREATE TABLE hasil_perhitungan (
     nilai DECIMAL(10,6),
     ranking INT
 );
+
+

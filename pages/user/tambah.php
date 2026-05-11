@@ -12,7 +12,7 @@ if (isset($_POST['submit'])) {
 
     $nama = $_POST['nama'];
     $username = $_POST['username'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = $_POST['password'];
     $level = $_POST['level'];
 
     $cek = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");

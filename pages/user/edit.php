@@ -17,7 +17,7 @@ if (isset($_POST['submit'])) {
     $level = $_POST['level'];
 
     if (!empty($_POST['password'])) {
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $password = $_POST['password'];
         mysqli_query($conn, "UPDATE users SET 
             nama_user='$nama',
             username='$username',
