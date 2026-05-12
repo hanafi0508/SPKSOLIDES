@@ -1,8 +1,9 @@
 <?php
 require_once '../config/session.php';
+require_once '../config/config.php';
 
 if (isset($_SESSION['id_user'])) {
-    header("Location: ../pages/dashboard.php");
+    header("Location: " . BASE_URL . "/pages/dashboard.php");
     exit;
 }
 ?>
@@ -12,7 +13,7 @@ if (isset($_SESSION['id_user'])) {
 <html>
 <head>
     <title>Login - SPK Supplier</title>
-    <link href="../assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo BASE_URL; ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -28,7 +29,7 @@ if (isset($_SESSION['id_user'])) {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="proses_login.php">
+            <form method="POST" action="<?php echo BASE_URL; ?>/auth/proses_login.php">
 
                 <div class="mb-3">
                     <label>Username</label>

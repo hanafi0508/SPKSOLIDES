@@ -56,15 +56,15 @@ include '../layouts/sidebar.php';
     <?php if ($_SESSION['level'] == 'admin'): ?>
 
         <h5>Menu Admin</h5>
-        <a href="../pages/kriteria/index.php" class="btn btn-primary">Kelola Kriteria</a>
-        <a href="../pages/supplier/index.php" class="btn btn-success">Kelola Supplier</a>
-        <a href="../pages/proyek/index.php" class="btn btn-warning">Kelola Proyek</a>
+        <a href="<?php echo BASE_URL; ?>/pages/kriteria/index.php" class="btn btn-primary">Kelola Kriteria</a>
+        <a href="<?php echo BASE_URL; ?>/pages/supplier/index.php" class="btn btn-success">Kelola Supplier</a>
+        <a href="<?php echo BASE_URL; ?>/pages/proyek/index.php" class="btn btn-warning">Kelola Proyek</a>
 
     <?php elseif ($_SESSION['level'] == 'pimpinan'): ?>
 
         <h5>Menu Pimpinan</h5>
-        <a href="../pages/ranking/index.php" class="btn btn-info">Lihat Ranking</a>
-        <a href="../pages/laporan/index.php" class="btn btn-secondary">Lihat Laporan</a>
+        <a href="<?php echo BASE_URL; ?>/pages/ranking/index.php?metode=AHP" class="btn btn-info">Lihat Ranking</a>
+        <a href="<?php echo BASE_URL; ?>/pages/laporan/index.php" class="btn btn-secondary">Lihat Laporan</a>
 
     <?php endif; ?>
 

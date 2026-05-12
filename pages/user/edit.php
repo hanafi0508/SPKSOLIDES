@@ -6,36 +6,56 @@ require_once '../../functions/auth_function.php';
 check_login();
 check_admin();
 
-$id = $_GET['id'];
-$data = mysqli_query($conn, "SELECT * FROM users WHERE id_user='$id'");
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE id_user = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$data = mysqli_stmt_get_result($stmt);
 $row = mysqli_fetch_assoc($data);
+$error = '';
+
+if (!$row) {
+    header("Location: index.php");
+    exit;
+}
 
 if (isset($_POST['submit'])) {
 
-    $nama = $_POST['nama'];
-    $username = $_POST['username'];
+    $nama = trim($_POST['nama']);
+    $username = trim($_POST['username']);
     $level = $_POST['level'];
 
-    if (!empty($_POST['password'])) {
-        $password = $_POST['password'];
-        mysqli_query($conn, "UPDATE users SET 
-            nama_user='$nama',
-            username='$username',
-            password='$password',
-            level='$level'
-            WHERE id_user='$id'
-        ");
-    } else {
-        mysqli_query($conn, "UPDATE users SET 
-            nama_user='$nama',
-            username='$username',
-            level='$level'
-            WHERE id_user='$id'
-        ");
-    }
+    $stmtCek = mysqli_prepare($conn, "SELECT id_user FROM users WHERE username = ? AND id_user != ?");
+    mysqli_stmt_bind_param($stmtCek, "si", $username, $id);
+    mysqli_stmt_execute($stmtCek);
+    $cek = mysqli_stmt_get_result($stmtCek);
 
-    header("Location: index.php");
-    exit;
+    if (mysqli_num_rows($cek) > 0) {
+        $error = "Username sudah digunakan";
+    } elseif (!in_array($level, ['admin', 'pimpinan'], true)) {
+        $error = "Level user tidak valid";
+    } elseif (!empty($_POST['password'])) {
+        $password = $_POST['password'];
+        $stmtUpdate = mysqli_prepare($conn, "
+            UPDATE users
+            SET nama_user = ?, username = ?, password = ?, level = ?
+            WHERE id_user = ?
+        ");
+        mysqli_stmt_bind_param($stmtUpdate, "ssssi", $nama, $username, $password, $level, $id);
+        mysqli_stmt_execute($stmtUpdate);
+        header("Location: index.php");
+        exit;
+    } else {
+        $stmtUpdate = mysqli_prepare($conn, "
+            UPDATE users
+            SET nama_user = ?, username = ?, level = ?
+            WHERE id_user = ?
+        ");
+        mysqli_stmt_bind_param($stmtUpdate, "sssi", $nama, $username, $level, $id);
+        mysqli_stmt_execute($stmtUpdate);
+        header("Location: index.php");
+        exit;
+    }
 }
 ?>
 
@@ -46,6 +66,10 @@ if (isset($_POST['submit'])) {
 <div class="col-md-10 p-4">
 
     <h3>Edit User</h3>
+
+    <?php if (!empty($error)): ?>
+        <div class="alert alert-danger"><?= $error; ?></div>
+    <?php endif; ?>
 
     <form method="POST">
 

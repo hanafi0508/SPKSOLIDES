@@ -6,7 +6,7 @@ require_once '../../functions/auth_function.php';
 check_login();
 check_admin();
 
-$id_proyek = $_GET['proyek'];
+$id_proyek = isset($_GET['proyek']) ? (int) $_GET['proyek'] : 0;
 
 $supplier = mysqli_query($conn, "SELECT * FROM supplier WHERE status='aktif'");
 
@@ -14,21 +14,25 @@ $error = '';
 
 if (isset($_POST['submit'])) {
 
-    $id_supplier = $_POST['supplier'];
+    $id_supplier = (int) $_POST['supplier'];
 
-    $cek = mysqli_query($conn, "
-        SELECT * FROM alternatif 
-        WHERE id_proyek='$id_proyek' AND id_supplier='$id_supplier'
+    $stmtCek = mysqli_prepare($conn, "
+        SELECT id_alternatif FROM alternatif
+        WHERE id_proyek = ? AND id_supplier = ?
     ");
+    mysqli_stmt_bind_param($stmtCek, "ii", $id_proyek, $id_supplier);
+    mysqli_stmt_execute($stmtCek);
+    $cek = mysqli_stmt_get_result($stmtCek);
 
     if (mysqli_num_rows($cek) > 0) {
         $error = "Supplier sudah ada di proyek ini";
     } else {
-
-        mysqli_query($conn, "
+        $stmtInsert = mysqli_prepare($conn, "
             INSERT INTO alternatif (id_proyek, id_supplier)
-            VALUES ('$id_proyek','$id_supplier')
+            VALUES (?, ?)
         ");
+        mysqli_stmt_bind_param($stmtInsert, "ii", $id_proyek, $id_supplier);
+        mysqli_stmt_execute($stmtInsert);
 
         header("Location: index.php?proyek=$id_proyek");
         exit;

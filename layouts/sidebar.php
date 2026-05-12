@@ -57,6 +57,18 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php?metode=AHP">
+                    Ranking
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/laporan/index.php">
+                    Laporan
+                </a>
+            </li>
+
         <?php endif; ?>
 
         <?php if ($_SESSION['level'] == 'pimpinan'): ?>
@@ -64,7 +76,7 @@
             <hr>
 
             <li class="nav-item mt-2">
-                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php">
+                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php?metode=AHP">
                     Ranking
                 </a>
             </li>

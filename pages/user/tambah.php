@@ -10,17 +10,27 @@ $error = '';
 
 if (isset($_POST['submit'])) {
 
-    $nama = $_POST['nama'];
-    $username = $_POST['username'];
+    $nama = trim($_POST['nama']);
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
     $level = $_POST['level'];
 
-    $cek = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");
+    $stmtCek = mysqli_prepare($conn, "SELECT id_user FROM users WHERE username = ?");
+    mysqli_stmt_bind_param($stmtCek, "s", $username);
+    mysqli_stmt_execute($stmtCek);
+    $cek = mysqli_stmt_get_result($stmtCek);
+
     if (mysqli_num_rows($cek) > 0) {
         $error = "Username sudah digunakan";
+    } elseif (!in_array($level, ['admin', 'pimpinan'], true)) {
+        $error = "Level user tidak valid";
     } else {
-        mysqli_query($conn, "INSERT INTO users (nama_user, username, password, level)
-                             VALUES ('$nama','$username','$password','$level')");
+        $stmtInsert = mysqli_prepare($conn, "
+            INSERT INTO users (nama_user, username, password, level)
+            VALUES (?, ?, ?, ?)
+        ");
+        mysqli_stmt_bind_param($stmtInsert, "ssss", $nama, $username, $password, $level);
+        mysqli_stmt_execute($stmtInsert);
         header("Location: index.php");
         exit;
     }
