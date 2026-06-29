@@ -28,6 +28,7 @@ CREATE TABLE proyek (
 CREATE TABLE supplier (
     id_supplier INT AUTO_INCREMENT PRIMARY KEY,
     nama_supplier VARCHAR(150),
+    tipe_supplier ENUM('barang','jasa') DEFAULT 'barang',
     alamat TEXT,
     no_telepon VARCHAR(30),
     email VARCHAR(100),
@@ -140,12 +141,12 @@ CREATE TABLE hasil_perhitungan (
 );
 
 INSERT INTO skala_fuzzy (kode, keterangan, nilai_l, nilai_m, nilai_u) VALUES
-('SP', 'Sama Penting', 1.000000, 1.000000, 1.000000),
-('SD', 'Sedikit Diutamakan', 1.000000, 2.000000, 3.000000),
-('C', 'Cukup Diutamakan', 2.000000, 3.000000, 4.000000),
-('L', 'Lebih Diutamakan', 3.000000, 4.000000, 5.000000),
-('SL', 'Sangat Lebih Diutamakan', 4.000000, 5.000000, 6.000000),
-('M', 'Mutlak Lebih Diutamakan', 5.000000, 6.000000, 7.000000),
-('MM', 'Mendekati Mutlak', 6.000000, 7.000000, 8.000000),
-('AM', 'Antara Mendekati dan Mutlak', 7.000000, 8.000000, 9.000000),
-('EM', 'Ekstrem Mutlak', 8.000000, 9.000000, 9.000000);
+('SP', '1 - Sama penting', 1.000000, 1.000000, 1.000000),
+('SD', '2 - Sedikit lebih penting', 1.000000, 2.000000, 3.000000),
+('C', '3 - Cukup lebih penting', 2.000000, 3.000000, 4.000000),
+('L', '4 - Lebih penting', 3.000000, 4.000000, 5.000000),
+('SL', '5 - Sangat lebih penting', 4.000000, 5.000000, 6.000000),
+('M', '6 - Dominan', 5.000000, 6.000000, 7.000000),
+('MM', '7 - Sangat dominan', 6.000000, 7.000000, 8.000000),
+('AM', '8 - Hampir mutlak', 7.000000, 8.000000, 9.000000),
+('EM', '9 - Mutlak', 8.000000, 9.000000, 9.000000);

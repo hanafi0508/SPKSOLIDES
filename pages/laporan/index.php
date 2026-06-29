@@ -144,9 +144,9 @@ include "../../layouts/sidebar.php";
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Supplier</th>
-                                    <th>Jenis Material</th>
-                                    <th>No Telepon</th>
-                                    <th>Email</th>
+                                    <th>Tipe</th>
+                                    <th>Barang / Jasa</th>
+                                    <th>Kontak</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -156,9 +156,9 @@ include "../../layouts/sidebar.php";
                                     <tr>
                                         <td class="text-center"><?= $no++; ?></td>
                                         <td><?= htmlspecialchars($s['nama_supplier']); ?></td>
+                                        <td><?= ucfirst(htmlspecialchars($s['tipe_supplier'] ?? 'barang')); ?></td>
                                         <td><?= htmlspecialchars($s['jenis_material'] ?? '-'); ?></td>
                                         <td><?= htmlspecialchars($s['no_telepon'] ?? '-'); ?></td>
-                                        <td><?= htmlspecialchars($s['email'] ?? '-'); ?></td>
                                         <td class="text-center">
                                             <?php if ($s['status'] == 'aktif') : ?>
                                                 <span class="badge bg-success">Aktif</span>

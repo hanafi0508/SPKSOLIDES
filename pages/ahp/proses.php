@@ -33,6 +33,7 @@ if (count($kriteria) < 2) {
 }
 
 $perbandingan = [];
+$jumlahPerbandingan = 0;
 
 foreach ($inputPerbandingan as $id_kriteria_1 => $data) {
     $id_kriteria_1 = (int) $id_kriteria_1;
@@ -46,11 +47,18 @@ foreach ($inputPerbandingan as $id_kriteria_1 => $data) {
         }
 
         $perbandingan[$id_kriteria_1][$id_kriteria_2] = $nilai;
+        $jumlahPerbandingan++;
     }
 }
 
 if (empty($perbandingan)) {
     echo "<script>alert('Data perbandingan belum diisi!'); window.location='input_perbandingan.php?id_proyek=$id_proyek';</script>";
+    exit;
+}
+
+$jumlahWajib = (count($kriteria) * (count($kriteria) - 1)) / 2;
+if ($jumlahPerbandingan !== $jumlahWajib) {
+    echo "<script>alert('Semua pasangan kriteria AHP wajib diisi.'); window.location='input_perbandingan.php?id_proyek=$id_proyek';</script>";
     exit;
 }
 

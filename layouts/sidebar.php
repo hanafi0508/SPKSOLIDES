@@ -1,5 +1,5 @@
 <?php require_once __DIR__ . '/../config/config.php'; ?>
-<div class="col-md-2 bg-dark text-white vh-100 p-3">
+<div class="col-md-2 bg-dark text-white p-3 app-sidebar">
 
     <ul class="nav flex-column">
 
@@ -20,9 +20,22 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/supplier/index.php">
+                <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#supplierMenu" role="button" aria-expanded="false" aria-controls="supplierMenu">
                     Supplier
+                    <span>+</span>
                 </a>
+            </li>
+            <li class="nav-item">
+                <div class="collapse" id="supplierMenu">
+                    <div class="ps-3">
+                        <a class="nav-link text-white-50" href="<?php echo BASE_URL; ?>/pages/supplier/index.php?tipe=barang">
+                            Barang
+                        </a>
+                        <a class="nav-link text-white-50" href="<?php echo BASE_URL; ?>/pages/supplier/index.php?tipe=jasa">
+                            Jasa
+                        </a>
+                    </div>
+                </div>
             </li>
 
             <li class="nav-item">
@@ -35,7 +48,7 @@
 
             <li class="nav-item mt-2">
                 <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/alternatif/index.php">
-                    Alternatif
+                    Perhitungan
                 </a>
             </li>
 
@@ -58,7 +71,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php?metode=AHP">
+                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php">
                     Ranking
                 </a>
             </li>
@@ -76,7 +89,7 @@
             <hr>
 
             <li class="nav-item mt-2">
-                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php?metode=AHP">
+                <a class="nav-link text-white" href="<?php echo BASE_URL; ?>/pages/ranking/index.php">
                     Ranking
                 </a>
             </li>

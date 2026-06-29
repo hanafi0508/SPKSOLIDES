@@ -102,7 +102,7 @@ include '../../layouts/sidebar.php';
         <div class="card">
             <div class="card-header bg-success text-white">Rekomendasi Akhir</div>
             <div class="card-body">
-                <?php if ($rekomendasiAhp && $rekomendasiFahp && $rekomendasiAhp['supplier'] === $rekomendasiFahp['supplier']): ?>
+                <?php if ($rekomendasiAhp && $rekomendasiFahp && $rekomendasiAhp['id_alternatif'] === $rekomendasiFahp['id_alternatif']): ?>
                     <p class="mb-0">
                         Supplier akhir yang direkomendasikan adalah <strong><?= htmlspecialchars($rekomendasiAhp['supplier']); ?></strong>
                         karena konsisten berada di peringkat pertama pada kedua metode.

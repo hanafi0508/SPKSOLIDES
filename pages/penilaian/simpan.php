@@ -6,7 +6,7 @@ require_once '../../functions/auth_function.php';
 check_login();
 check_admin();
 
-$id_proyek = (int)$_POST['id_proyek'];
+$id_proyek = (int) $_POST['id_proyek'];
 if ($id_proyek <= 0 || empty($_POST['nilai']) || !is_array($_POST['nilai'])) {
     header("Location: index.php?proyek=$id_proyek&error=1");
     exit;
@@ -27,11 +27,15 @@ try {
                 throw new RuntimeException('Nilai tidak valid.');
             }
 
-            $id_alt = (int)$id_alt;
-            $id_krit = (int)$id_krit;
-            $val = (float)$val;
+            $idAlternatif = (int) $id_alt;
+            $idKriteria = (int) $id_krit;
+            $nilaiInput = (float) $val;
 
-            mysqli_stmt_bind_param($stmt, "iiid", $id_proyek, $id_alt, $id_krit, $val);
+            if ($nilaiInput < 1 || $nilaiInput > 10 || floor($nilaiInput) != $nilaiInput) {
+                throw new RuntimeException('Nilai harus 1 sampai 10.');
+            }
+
+            mysqli_stmt_bind_param($stmt, "iiid", $id_proyek, $idAlternatif, $idKriteria, $nilaiInput);
             mysqli_stmt_execute($stmt);
         }
     }

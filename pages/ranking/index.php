@@ -15,10 +15,15 @@ $perbandingan = [];
 $kesimpulan = '';
 $rekomendasiAhp = null;
 $rekomendasiFahp = null;
+$workflowStatus = null;
+$workflowIssues = [];
 
 $proyekList = mysqli_query($conn, "SELECT id_proyek, nama_proyek FROM proyek ORDER BY id_proyek DESC");
 
 if ($id_proyek > 0) {
+    $workflowStatus = getProjectWorkflowStatus($conn, $id_proyek);
+    $workflowIssues = getProjectWorkflowIssues($workflowStatus);
+
     try {
         $hasilAhp = hitungRankingAhp($conn, $id_proyek);
         simpanRankingAhp($conn, $id_proyek, $hasilAhp['ranking']);
@@ -75,6 +80,46 @@ include '../../layouts/sidebar.php';
             <a href="perbandingan.php?id_proyek=<?= $id_proyek; ?>" class="btn btn-warning">Perbandingan</a>
             <a href="../laporan/index.php?id_proyek=<?= $id_proyek; ?>" class="btn btn-dark">Laporan</a>
         </div>
+
+        <?php if ($workflowStatus): ?>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Supplier</small>
+                        <strong><?= $workflowStatus['alternatif']; ?></strong>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">Penilaian</small>
+                        <strong><?= $workflowStatus['penilaian_terisi']; ?>/<?= $workflowStatus['penilaian_harus']; ?></strong>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">AHP</small>
+                        <strong><?= $workflowStatus['ahp_konsisten'] ? 'Konsisten' : 'Belum Siap'; ?></strong>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3">
+                        <small class="text-muted">F-AHP</small>
+                        <strong><?= $workflowStatus['fahp_total'] > 0 ? 'Siap' : 'Belum Siap'; ?></strong>
+                    </div>
+                </div>
+            </div>
+
+            <?php if (!empty($workflowIssues)): ?>
+                <div class="alert alert-warning">
+                    <strong>Flow proyek ini belum lengkap:</strong>
+                    <ul class="mb-0 mt-2">
+                        <?php foreach ($workflowIssues as $issue): ?>
+                            <li><?= htmlspecialchars($issue); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($errorAhp !== ''): ?>
@@ -151,7 +196,7 @@ include '../../layouts/sidebar.php';
         <div class="card mb-3">
             <div class="card-header bg-success text-white">Supplier Rekomendasi</div>
             <div class="card-body">
-                <?php if ($rekomendasiAhp && $rekomendasiFahp && $rekomendasiAhp['supplier'] === $rekomendasiFahp['supplier']): ?>
+                <?php if ($rekomendasiAhp && $rekomendasiFahp && $rekomendasiAhp['id_alternatif'] === $rekomendasiFahp['id_alternatif']): ?>
                     <p class="mb-0">
                         Supplier yang direkomendasikan adalah <strong><?= htmlspecialchars($rekomendasiAhp['supplier']); ?></strong>
                         karena menempati peringkat 1 pada metode AHP dan F-AHP.

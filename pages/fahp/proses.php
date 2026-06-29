@@ -46,31 +46,42 @@ if (count($skalaFuzzy) == 0) {
 
 $perbandingan = [];
 $dataSimpan = [];
+$jumlahPerbandingan = 0;
 
 foreach ($inputPerbandingan as $id_kriteria_1 => $data) {
     $id_kriteria_1 = (int) $id_kriteria_1;
 
-    foreach ($data as $id_kriteria_2 => $id_skala) {
+    foreach ($data as $id_kriteria_2 => $pilihanSkala) {
         $id_kriteria_2 = (int) $id_kriteria_2;
-        $id_skala = (int) $id_skala;
+        $pilihanSkala = trim((string) $pilihanSkala);
 
-        if ($id_kriteria_1 <= 0 || $id_kriteria_2 <= 0 || $id_skala <= 0) {
+        if ($id_kriteria_1 <= 0 || $id_kriteria_2 <= 0 || $pilihanSkala === '') {
             continue;
         }
+
+        [$arah, $idSkalaString] = array_pad(explode('-', $pilihanSkala, 2), 2, '');
+        $id_skala = (int) $idSkalaString;
 
         if (!isset($skalaFuzzy[$id_skala])) {
             continue;
         }
 
-        $nilai_l = (float) $skalaFuzzy[$id_skala]['nilai_l'];
-        $nilai_m = (float) $skalaFuzzy[$id_skala]['nilai_m'];
-        $nilai_u = (float) $skalaFuzzy[$id_skala]['nilai_u'];
+        if ($arah === 'N') {
+            $nilai_l = 1 / (float) $skalaFuzzy[$id_skala]['nilai_u'];
+            $nilai_m = 1 / (float) $skalaFuzzy[$id_skala]['nilai_m'];
+            $nilai_u = 1 / (float) $skalaFuzzy[$id_skala]['nilai_l'];
+        } else {
+            $nilai_l = (float) $skalaFuzzy[$id_skala]['nilai_l'];
+            $nilai_m = (float) $skalaFuzzy[$id_skala]['nilai_m'];
+            $nilai_u = (float) $skalaFuzzy[$id_skala]['nilai_u'];
+        }
 
         $perbandingan[$id_kriteria_1][$id_kriteria_2] = [
             'l' => $nilai_l,
             'm' => $nilai_m,
             'u' => $nilai_u
         ];
+        $jumlahPerbandingan++;
 
         $dataSimpan[] = [
             'id_kriteria_1' => $id_kriteria_1,
@@ -85,6 +96,12 @@ foreach ($inputPerbandingan as $id_kriteria_1 => $data) {
 
 if (empty($perbandingan)) {
     echo "<script>alert('Data perbandingan F-AHP belum diisi!'); window.location='input_perbandingan.php?id_proyek=$id_proyek';</script>";
+    exit;
+}
+
+$jumlahWajib = (count($kriteria) * (count($kriteria) - 1)) / 2;
+if ($jumlahPerbandingan !== $jumlahWajib) {
+    echo "<script>alert('Semua pasangan kriteria F-AHP wajib diisi.'); window.location='input_perbandingan.php?id_proyek=$id_proyek';</script>";
     exit;
 }
 

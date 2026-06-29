@@ -2,6 +2,7 @@
 require_once '../../config/session.php';
 require_once '../../config/database.php';
 require_once '../../functions/auth_function.php';
+require_once '../../functions/ranking_function.php';
 
 check_login();
 check_admin();
@@ -12,6 +13,7 @@ $id_proyek = isset($_GET['proyek']) ? (int)$_GET['proyek'] : 0;
 $alternatif = [];
 $kriteria = [];
 $nilai = [];
+$workflowStatus = null;
 
 if ($id_proyek > 0) {
 
@@ -32,6 +34,8 @@ if ($id_proyek > 0) {
     while ($n = mysqli_fetch_assoc($data_nilai)) {
         $nilai[$n['id_alternatif']][$n['id_kriteria']] = $n['nilai'];
     }
+
+    $workflowStatus = getProjectWorkflowStatus($conn, $id_proyek);
 }
 ?>
 
@@ -44,7 +48,7 @@ if ($id_proyek > 0) {
     <h3>Penilaian Supplier</h3>
 
     <?php if (isset($_GET['error'])): ?>
-        <div class="alert alert-danger">Nilai harus angka dan tidak boleh kosong</div>
+        <div class="alert alert-danger">Nilai harus bilangan bulat antara 1 sampai 10</div>
     <?php endif; ?>
 
     <?php if (isset($_GET['success'])): ?>
@@ -63,6 +67,13 @@ if ($id_proyek > 0) {
     </form>
 
     <?php if ($id_proyek): ?>
+        <?php if ($workflowStatus): ?>
+            <div class="alert alert-info">
+                Supplier dipilih: <strong><?= $workflowStatus['alternatif']; ?></strong>,
+                kriteria: <strong><?= $workflowStatus['kriteria']; ?></strong>,
+                penilaian terisi: <strong><?= $workflowStatus['penilaian_terisi']; ?>/<?= $workflowStatus['penilaian_harus']; ?></strong>.
+            </div>
+        <?php endif; ?>
 
         <?php if (mysqli_num_rows($alternatif) == 0): ?>
             <div class="alert alert-warning">Belum ada alternatif</div>
@@ -94,9 +105,9 @@ if ($id_proyek > 0) {
                         $val = $nilai[$a['id_alternatif']][$k['id_kriteria']] ?? '';
                     ?>
                         <td>
-                            <input type="number" step="any"
+                            <input type="number" min="1" max="10" step="1"
                             name="nilai[<?= $a['id_alternatif']; ?>][<?= $k['id_kriteria']; ?>]"
-                            value="<?= $val; ?>"
+                            value="<?= htmlspecialchars((string) $val); ?>"
                             class="form-control"
                             required>
                         </td>

@@ -7,28 +7,39 @@ check_login();
 check_admin();
 
 $error = '';
+$tipe = $_GET['tipe'] ?? ($_POST['tipe_supplier'] ?? 'barang');
+
+if (!in_array($tipe, ['barang', 'jasa'], true)) {
+    $tipe = 'barang';
+}
 
 if (isset($_POST['submit'])) {
 
-    $nama = $_POST['nama'];
-    $alamat = $_POST['alamat'];
-    $telp = $_POST['telepon'];
-    $email = $_POST['email'];
-    $material = $_POST['material'];
+    $nama = trim($_POST['nama']);
+    $tipe = $_POST['tipe_supplier'] ?? 'barang';
+    $telp = trim($_POST['telepon']);
+    $material = trim($_POST['material']);
     $status = $_POST['status'];
 
     if (empty($nama)) {
         $error = "Nama supplier wajib diisi";
     }
-    elseif (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Format email tidak valid";
+    elseif (!in_array($tipe, ['barang', 'jasa'], true)) {
+        $error = "Tipe supplier tidak valid";
+    }
+    elseif (empty($material)) {
+        $error = "Barang / jasa wajib diisi";
     }
     else {
-        mysqli_query($conn, "INSERT INTO supplier 
-        (nama_supplier, alamat, no_telepon, email, jenis_material, status)
-        VALUES ('$nama','$alamat','$telp','$email','$material','$status')");
+        $stmt = mysqli_prepare($conn, "
+            INSERT INTO supplier (nama_supplier, tipe_supplier, alamat, no_telepon, jenis_material, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $alamat = '';
+        mysqli_stmt_bind_param($stmt, "ssssss", $nama, $tipe, $alamat, $telp, $material, $status);
+        mysqli_stmt_execute($stmt);
 
-        header("Location: index.php");
+        header("Location: index.php?tipe=" . urlencode($tipe));
         exit;
     }
 }
@@ -47,6 +58,7 @@ if (isset($_POST['submit'])) {
     <?php endif; ?>
 
     <form method="POST">
+        <input type="hidden" name="tipe_supplier" value="<?= htmlspecialchars($tipe); ?>">
 
         <div class="mb-3">
             <label>Nama Supplier</label>
@@ -54,23 +66,20 @@ if (isset($_POST['submit'])) {
         </div>
 
         <div class="mb-3">
-            <label>Alamat</label>
-            <textarea name="alamat" class="form-control"></textarea>
+            <label>Tipe Supplier</label>
+            <select class="form-control" disabled>
+                <option><?= ucfirst(htmlspecialchars($tipe)); ?></option>
+            </select>
         </div>
 
         <div class="mb-3">
-            <label>No Telepon</label>
+            <label>Kontak</label>
             <input type="text" name="telepon" class="form-control">
         </div>
 
         <div class="mb-3">
-            <label>Email</label>
-            <input type="text" name="email" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label>Jenis Material</label>
-            <input type="text" name="material" class="form-control">
+            <label>Barang / Jasa</label>
+            <input type="text" name="material" class="form-control" required>
         </div>
 
         <div class="mb-3">
@@ -82,7 +91,7 @@ if (isset($_POST['submit'])) {
         </div>
 
         <button name="submit" class="btn btn-success">Simpan</button>
-        <a href="index.php" class="btn btn-secondary">Kembali</a>
+        <a href="index.php?tipe=<?= urlencode($tipe); ?>" class="btn btn-secondary">Kembali</a>
 
     </form>
 

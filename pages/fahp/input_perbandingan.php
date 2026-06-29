@@ -2,12 +2,12 @@
 require_once '../../config/session.php';
 require_once '../../config/database.php';
 require_once '../../functions/auth_function.php';
+require_once '../../functions/ranking_function.php';
 
 check_login();
 check_admin();
 
 $proyek = mysqli_query($conn, "SELECT * FROM proyek ORDER BY id_proyek DESC");
-
 $id_proyek = isset($_GET['id_proyek']) ? (int) $_GET['id_proyek'] : 0;
 
 $kriteria = [];
@@ -25,6 +25,7 @@ while ($row = mysqli_fetch_assoc($querySkala)) {
 }
 
 $dataPerbandingan = [];
+$workflowStatus = null;
 
 if ($id_proyek > 0) {
     $stmt = mysqli_prepare($conn, "SELECT * FROM perbandingan_fahp WHERE id_proyek = ?");
@@ -33,8 +34,33 @@ if ($id_proyek > 0) {
     $result = mysqli_stmt_get_result($stmt);
 
     while ($row = mysqli_fetch_assoc($result)) {
+        $selected = '';
+
+        foreach ($skalaFuzzy as $skala) {
+            $directMatch = abs((float) $row['nilai_l'] - (float) $skala['nilai_l']) < 0.000001
+                && abs((float) $row['nilai_m'] - (float) $skala['nilai_m']) < 0.000001
+                && abs((float) $row['nilai_u'] - (float) $skala['nilai_u']) < 0.000001;
+
+            $reciprocalMatch = abs((float) $row['nilai_l'] - (1 / (float) $skala['nilai_u'])) < 0.000001
+                && abs((float) $row['nilai_m'] - (1 / (float) $skala['nilai_m'])) < 0.000001
+                && abs((float) $row['nilai_u'] - (1 / (float) $skala['nilai_l'])) < 0.000001;
+
+            if ($directMatch) {
+                $selected = 'P-' . $skala['id_skala'];
+                break;
+            }
+
+            if ($reciprocalMatch) {
+                $selected = 'N-' . $skala['id_skala'];
+                break;
+            }
+        }
+
+        $row['selected_option'] = $selected;
         $dataPerbandingan[$row['id_kriteria_1']][$row['id_kriteria_2']] = $row;
     }
+
+    $workflowStatus = getProjectWorkflowStatus($conn, $id_proyek);
 }
 
 include "../../layouts/header.php";
@@ -81,6 +107,13 @@ include "../../layouts/sidebar.php";
     </div>
 
     <?php if ($id_proyek > 0) : ?>
+        <?php if ($workflowStatus): ?>
+            <div class="alert alert-info">
+                Supplier di Perhitungan: <strong><?= $workflowStatus['alternatif']; ?></strong>,
+                penilaian terisi: <strong><?= $workflowStatus['penilaian_terisi']; ?>/<?= $workflowStatus['penilaian_harus']; ?></strong>.
+                Bobot F-AHP ini dipakai saat ranking bersama data penilaian supplier.
+            </div>
+        <?php endif; ?>
 
         <?php if (count($kriteria) < 2) : ?>
 
@@ -103,7 +136,7 @@ include "../../layouts/sidebar.php";
 
                 <div class="card-body">
                     <div class="alert alert-info">
-                        Isi hanya bagian atas diagonal. Diagonal otomatis SP, bagian bawah otomatis reciprocal fuzzy.
+                        Pilih skala linguistik untuk setiap pasangan kriteria. Opsi "kolom lebih penting" akan otomatis disimpan sebagai bilangan fuzzy reciprocal yang benar.
                     </div>
 
                     <form method="POST" action="proses.php">
@@ -142,7 +175,7 @@ include "../../layouts/sidebar.php";
                                                     <?php elseif ($i < $j) : ?>
 
                                                         <?php
-                                                        $selectedSkala = $dataPerbandingan[$id1][$id2]['id_skala'] ?? '';
+                                                        $selectedSkala = $dataPerbandingan[$id1][$id2]['selected_option'] ?? '';
                                                         ?>
 
                                                         <select
@@ -154,14 +187,24 @@ include "../../layouts/sidebar.php";
 
                                                             <?php foreach ($skalaFuzzy as $s) : ?>
                                                                 <option
-                                                                    value="<?= $s['id_skala']; ?>"
+                                                                    value="P-<?= $s['id_skala']; ?>"
                                                                     data-l="<?= $s['nilai_l']; ?>"
                                                                     data-m="<?= $s['nilai_m']; ?>"
                                                                     data-u="<?= $s['nilai_u']; ?>"
-                                                                    <?= ($selectedSkala == $s['id_skala']) ? 'selected' : ''; ?>>
-                                                                    <?= htmlspecialchars($s['kode']); ?> -
+                                                                    <?= ($selectedSkala === 'P-' . $s['id_skala']) ? 'selected' : ''; ?>>
+                                                                    Baris lebih penting: <?= htmlspecialchars($s['kode']); ?> -
                                                                     <?= htmlspecialchars($s['keterangan']); ?>
                                                                     (<?= $s['nilai_l']; ?>, <?= $s['nilai_m']; ?>, <?= $s['nilai_u']; ?>)
+                                                                </option>
+                                                                <option
+                                                                    value="N-<?= $s['id_skala']; ?>"
+                                                                    data-l="<?= 1 / (float) $s['nilai_u']; ?>"
+                                                                    data-m="<?= 1 / (float) $s['nilai_m']; ?>"
+                                                                    data-u="<?= 1 / (float) $s['nilai_l']; ?>"
+                                                                    <?= ($selectedSkala === 'N-' . $s['id_skala']) ? 'selected' : ''; ?>>
+                                                                    Kolom lebih penting: <?= htmlspecialchars($s['kode']); ?> -
+                                                                    <?= htmlspecialchars($s['keterangan']); ?>
+                                                                    (<?= number_format(1 / (float) $s['nilai_u'], 4); ?>, <?= number_format(1 / (float) $s['nilai_m'], 4); ?>, <?= number_format(1 / (float) $s['nilai_l'], 4); ?>)
                                                                 </option>
                                                             <?php endforeach; ?>
                                                         </select>
@@ -220,21 +263,14 @@ include "../../layouts/sidebar.php";
 <script>
 document.querySelectorAll('.skala-fuzzy').forEach(function(select) {
     select.addEventListener('change', function() {
-        let selectedOption = this.options[this.selectedIndex];
-
-        let l = parseFloat(selectedOption.getAttribute('data-l'));
-        let m = parseFloat(selectedOption.getAttribute('data-m'));
-        let u = parseFloat(selectedOption.getAttribute('data-u'));
-
-        let targetId = this.getAttribute('data-target');
-        let target = document.getElementById(targetId);
+        const selectedOption = this.options[this.selectedIndex];
+        const l = parseFloat(selectedOption.getAttribute('data-l'));
+        const m = parseFloat(selectedOption.getAttribute('data-m'));
+        const u = parseFloat(selectedOption.getAttribute('data-u'));
+        const target = document.getElementById(this.getAttribute('data-target'));
 
         if (target && l > 0 && m > 0 && u > 0) {
-            let reciprocalL = 1 / u;
-            let reciprocalM = 1 / m;
-            let reciprocalU = 1 / l;
-
-            target.value = reciprocalL.toFixed(4) + ', ' + reciprocalM.toFixed(4) + ', ' + reciprocalU.toFixed(4);
+            target.value = (1 / u).toFixed(4) + ', ' + (1 / m).toFixed(4) + ', ' + (1 / l).toFixed(4);
         }
     });
 });

@@ -1,1 +1,181 @@
 /* Project overrides */
+
+:root {
+    --app-navbar-height: 72px;
+    --app-sidebar-width: 16.666667%;
+    --app-text-size: 13.5px;
+}
+
+html {
+    font-size: var(--app-text-size);
+}
+
+body.app-shell {
+    min-height: 100vh;
+    padding-top: var(--app-navbar-height);
+    color: #22384a;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    background:
+        radial-gradient(circle at top right, rgba(15, 76, 129, 0.18), transparent 28%),
+        linear-gradient(180deg, #f2f5f9 0%, #e7edf4 100%);
+}
+
+.app-navbar {
+    min-height: var(--app-navbar-height);
+    background:
+        linear-gradient(120deg, rgba(6, 39, 66, 0.96), rgba(19, 93, 126, 0.9)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.08)'%3E%3Ccircle cx='110' cy='110' r='72'/%3E%3Ccircle cx='110' cy='110' r='46'/%3E%3Cpath d='M30 110h160M110 30v160'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover, 220px 220px;
+}
+
+.app-navbar .navbar-brand,
+.app-navbar .btn,
+.app-navbar .text-white {
+    font-size: 0.9rem;
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    color: #10344f;
+    background: linear-gradient(135deg, #f8d86a, #fff4c5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.brand-copy strong {
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+}
+
+.app-sidebar {
+    position: sticky;
+    top: var(--app-navbar-height);
+    height: calc(100vh - var(--app-navbar-height));
+    overflow-y: auto;
+    font-size: 0.9rem;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.app-sidebar .nav-link {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.9rem;
+    border-radius: 0.45rem;
+}
+
+.app-sidebar .nav-link:hover,
+.app-sidebar .nav-link:focus {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.app-sidebar hr {
+    margin: 0.75rem 0;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.col-md-10.p-4 {
+    position: relative;
+    min-height: calc(100vh - var(--app-navbar-height));
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(6px);
+}
+
+.col-md-10.p-4::before {
+    content: "";
+    position: absolute;
+    inset: 24px 24px auto auto;
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    border: 18px solid rgba(19, 93, 126, 0.08);
+    box-shadow: inset 0 0 0 12px rgba(248, 216, 106, 0.12);
+    pointer-events: none;
+}
+
+h3, h4 {
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid rgba(19, 93, 126, 0.16);
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #123a58;
+}
+
+.card {
+    border: 0;
+    box-shadow: 0 12px 32px rgba(21, 49, 73, 0.08);
+}
+
+.card-header,
+.card-body,
+.table,
+.form-control,
+.form-select,
+.btn,
+.alert,
+.nav-link,
+label,
+th,
+td,
+p,
+span,
+small,
+li,
+a {
+    font-size: 0.9rem;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th,
+.table tbody td,
+.table tbody th {
+    padding: 0.62rem 0.7rem;
+}
+
+.btn {
+    padding: 0.42rem 0.8rem;
+}
+
+.btn-sm {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.82rem;
+}
+
+.form-control,
+.form-select {
+    padding: 0.45rem 0.7rem;
+}
+
+.table thead th {
+    vertical-align: middle;
+}
+
+@media (max-width: 767.98px) {
+    body.app-shell {
+        padding-top: 64px;
+    }
+
+    .app-navbar {
+        min-height: 64px;
+    }
+
+    .app-sidebar {
+        position: static;
+        top: auto;
+        height: auto;
+    }
+
+    .col-md-10.p-4::before {
+        display: none;
+    }
+}

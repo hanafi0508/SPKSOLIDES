@@ -7,9 +7,15 @@ check_login();
 check_admin();
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$tipe = $_GET['tipe'] ?? 'barang';
+
+if (!in_array($tipe, ['barang', 'jasa'], true)) {
+    $tipe = 'barang';
+}
+
 $stmt = mysqli_prepare($conn, "DELETE FROM supplier WHERE id_supplier = ?");
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
 
-header("Location: index.php");
+header("Location: index.php?tipe=" . urlencode($tipe));
 exit;

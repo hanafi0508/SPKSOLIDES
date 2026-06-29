@@ -13,15 +13,20 @@ if (isset($_SESSION['id_user'])) {
 <html>
 <head>
     <title>Login - SPK Supplier</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="<?php echo BASE_URL; ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo BASE_URL; ?>/assets/css/custom.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="app-shell">
 
 <div class="container mt-5">
     <div class="col-md-4 mx-auto">
         <div class="card shadow p-4">
 
-            <h4 class="text-center mb-3">Login</h4>
+            <div class="text-center mb-3">
+                <div class="brand-logo mx-auto mb-2">SPK</div>
+                <h4>Login</h4>
+            </div>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="alert alert-danger">

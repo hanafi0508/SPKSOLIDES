@@ -165,8 +165,10 @@ function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penila
     $peringkat = 1;
     foreach ($nilaiAkhir as $idAlternatif => $nilai) {
         $ranking[$idAlternatif] = [
+            'id_alternatif' => $idAlternatif,
             'ranking' => $peringkat++,
             'nilai' => $nilai,
+            'nama_supplier' => $alternatif[$idAlternatif]['nama_supplier'],
             'supplier' => $alternatif[$idAlternatif]['nama_supplier'],
         ];
     }
@@ -236,7 +238,7 @@ function getRankingTersimpan(mysqli $conn, $idProyek, $metode)
 {
     $ranking = [];
     $stmt = mysqli_prepare($conn, "
-        SELECT h.*, s.nama_supplier, s.jenis_material
+        SELECT h.*, s.nama_supplier, s.tipe_supplier, s.jenis_material
         FROM hasil_perhitungan h
         JOIN alternatif a ON h.id_alternatif = a.id_alternatif
         JOIN supplier s ON a.id_supplier = s.id_supplier
@@ -276,7 +278,7 @@ function getLaporanData(mysqli $conn, $idProyek)
     }
 
     $stmtSupplier = mysqli_prepare($conn, "
-        SELECT a.id_alternatif, s.nama_supplier, s.alamat, s.no_telepon, s.email, s.jenis_material, s.status
+        SELECT a.id_alternatif, s.nama_supplier, s.tipe_supplier, s.alamat, s.no_telepon, s.email, s.jenis_material, s.status
         FROM alternatif a
         JOIN supplier s ON a.id_supplier = s.id_supplier
         WHERE a.id_proyek = ?
@@ -362,7 +364,7 @@ function buildPerbandinganRanking(array $rankingAhp, array $rankingFahp)
 
         $perbandingan[] = [
             'id_alternatif' => $idAlternatif,
-            'nama_supplier' => $ahp['nama_supplier'],
+            'nama_supplier' => $ahp['nama_supplier'] ?? $ahp['supplier'],
             'ranking_ahp' => $rankingAhpValue,
             'ranking_fahp' => $rankingFahpValue,
             'selisih' => $selisih,
@@ -387,4 +389,78 @@ function buildKesimpulanPerbandingan(array $rankingAhp, array $rankingFahp)
     }
 
     return 'Metode AHP dan F-AHP menghasilkan supplier peringkat pertama yang berbeda sehingga perlu pertimbangan manajerial tambahan.';
+}
+
+function getProjectWorkflowStatus(mysqli $conn, int $idProyek): array
+{
+    $status = [
+        'alternatif' => 0,
+        'kriteria' => 0,
+        'penilaian_terisi' => 0,
+        'penilaian_harus' => 0,
+        'ahp_total' => 0,
+        'ahp_konsisten' => false,
+        'fahp_total' => 0,
+    ];
+
+    $stmtAlternatif = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM alternatif WHERE id_proyek = ?");
+    mysqli_stmt_bind_param($stmtAlternatif, "i", $idProyek);
+    mysqli_stmt_execute($stmtAlternatif);
+    $status['alternatif'] = (int) (mysqli_fetch_assoc(mysqli_stmt_get_result($stmtAlternatif))['total'] ?? 0);
+
+    $queryKriteria = mysqli_query($conn, "SELECT COUNT(*) AS total FROM kriteria");
+    $status['kriteria'] = (int) (mysqli_fetch_assoc($queryKriteria)['total'] ?? 0);
+    $status['penilaian_harus'] = $status['alternatif'] * $status['kriteria'];
+
+    $stmtPenilaian = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM penilaian_supplier WHERE id_proyek = ?");
+    mysqli_stmt_bind_param($stmtPenilaian, "i", $idProyek);
+    mysqli_stmt_execute($stmtPenilaian);
+    $status['penilaian_terisi'] = (int) (mysqli_fetch_assoc(mysqli_stmt_get_result($stmtPenilaian))['total'] ?? 0);
+
+    $stmtAhp = mysqli_prepare($conn, "
+        SELECT COUNT(*) AS total, MAX(status_konsistensi = 'konsisten') AS konsisten
+        FROM bobot_ahp
+        WHERE id_proyek = ?
+    ");
+    mysqli_stmt_bind_param($stmtAhp, "i", $idProyek);
+    mysqli_stmt_execute($stmtAhp);
+    $ahpRow = mysqli_fetch_assoc(mysqli_stmt_get_result($stmtAhp));
+    $status['ahp_total'] = (int) ($ahpRow['total'] ?? 0);
+    $status['ahp_konsisten'] = (int) ($ahpRow['konsisten'] ?? 0) === 1;
+
+    $stmtFahp = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM bobot_fahp WHERE id_proyek = ?");
+    mysqli_stmt_bind_param($stmtFahp, "i", $idProyek);
+    mysqli_stmt_execute($stmtFahp);
+    $status['fahp_total'] = (int) (mysqli_fetch_assoc(mysqli_stmt_get_result($stmtFahp))['total'] ?? 0);
+
+    return $status;
+}
+
+function getProjectWorkflowIssues(array $status): array
+{
+    $issues = [];
+
+    if ($status['alternatif'] === 0) {
+        $issues[] = 'Belum ada supplier yang dimasukkan ke menu Perhitungan.';
+    }
+
+    if ($status['kriteria'] === 0) {
+        $issues[] = 'Data kriteria belum tersedia.';
+    }
+
+    if ($status['penilaian_harus'] > 0 && $status['penilaian_terisi'] < $status['penilaian_harus']) {
+        $issues[] = 'Penilaian supplier belum lengkap untuk semua kombinasi supplier dan kriteria.';
+    }
+
+    if ($status['ahp_total'] === 0) {
+        $issues[] = 'Bobot AHP belum dihitung.';
+    } elseif (!$status['ahp_konsisten']) {
+        $issues[] = 'Bobot AHP sudah ada tetapi belum konsisten.';
+    }
+
+    if ($status['fahp_total'] === 0) {
+        $issues[] = 'Bobot F-AHP belum dihitung.';
+    }
+
+    return $issues;
 }

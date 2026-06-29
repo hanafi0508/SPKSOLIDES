@@ -44,7 +44,7 @@ include '../layouts/sidebar.php';
 
         <div class="col-md-3">
             <div class="card p-3 text-center">
-                <h5>Alternatif</h5>
+                <h5>Perhitungan</h5>
                 <h3><?= $total_alternatif; ?></h3>
             </div>
         </div>
@@ -63,7 +63,7 @@ include '../layouts/sidebar.php';
     <?php elseif ($_SESSION['level'] == 'pimpinan'): ?>
 
         <h5>Menu Pimpinan</h5>
-        <a href="<?php echo BASE_URL; ?>/pages/ranking/index.php?metode=AHP" class="btn btn-info">Lihat Ranking</a>
+        <a href="<?php echo BASE_URL; ?>/pages/ranking/index.php" class="btn btn-info">Lihat Ranking</a>
         <a href="<?php echo BASE_URL; ?>/pages/laporan/index.php" class="btn btn-secondary">Lihat Laporan</a>
 
     <?php endif; ?>

@@ -8,7 +8,7 @@ check_admin();
 
 $id_proyek = isset($_GET['proyek']) ? (int) $_GET['proyek'] : 0;
 
-$supplier = mysqli_query($conn, "SELECT * FROM supplier WHERE status='aktif'");
+$supplier = mysqli_query($conn, "SELECT * FROM supplier WHERE status='aktif' ORDER BY tipe_supplier ASC, nama_supplier ASC");
 
 $error = '';
 
@@ -46,7 +46,7 @@ if (isset($_POST['submit'])) {
 
 <div class="col-md-10 p-4">
 
-    <h3>Tambah Alternatif</h3>
+    <h3>Tambah Supplier ke Perhitungan</h3>
 
     <?php if ($error): ?>
         <div class="alert alert-danger"><?= $error; ?></div>
@@ -60,7 +60,7 @@ if (isset($_POST['submit'])) {
                 <option value="">-- Pilih Supplier --</option>
                 <?php while($s = mysqli_fetch_assoc($supplier)): ?>
                     <option value="<?= $s['id_supplier']; ?>">
-                        <?= $s['nama_supplier']; ?>
+                        <?= htmlspecialchars($s['nama_supplier']); ?> - <?= ucfirst(htmlspecialchars($s['tipe_supplier'] ?? 'barang')); ?> - <?= htmlspecialchars($s['jenis_material']); ?>
                     </option>
                 <?php endwhile; ?>
             </select>
