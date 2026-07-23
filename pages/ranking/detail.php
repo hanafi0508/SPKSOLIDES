@@ -7,22 +7,17 @@ require_once '../../functions/ranking_function.php';
 check_login();
 
 $id_proyek = isset($_GET['id_proyek']) ? (int) $_GET['id_proyek'] : 0;
-$metode = $_GET['metode'] ?? 'AHP';
 $error = '';
 $hasilRanking = null;
 
-if (!in_array($metode, ['AHP', 'F-AHP'], true)) {
-    $error = 'Metode tidak valid.';
-} elseif ($id_proyek > 0) {
+if ($id_proyek > 0) {
     try {
-        if ($metode === 'AHP') {
-            $hasilRanking = hitungRankingAhp($conn, $id_proyek);
-        } else {
-            $hasilRanking = hitungRankingFahp($conn, $id_proyek);
-        }
+        $hasilRanking = hitungRankingAhp($conn, $id_proyek);
     } catch (Throwable $th) {
         $error = $th->getMessage();
     }
+} else {
+    $error = 'Proyek tidak valid.';
 }
 
 include '../../layouts/header.php';
@@ -31,7 +26,7 @@ include '../../layouts/sidebar.php';
 ?>
 
 <div class="col-md-10 p-4">
-    <h3>Detail Ranking <?= htmlspecialchars($metode); ?></h3>
+    <h3>Detail Ranking AHP</h3>
 
     <?php if ($error !== ''): ?>
         <div class="alert alert-warning"><?= htmlspecialchars($error); ?></div>
@@ -42,7 +37,7 @@ include '../../layouts/sidebar.php';
         </div>
 
         <div class="card">
-            <div class="card-header bg-info text-white">Detail Perhitungan <?= htmlspecialchars($metode); ?></div>
+            <div class="card-header bg-info text-white">Detail Perhitungan AHP</div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped align-middle">

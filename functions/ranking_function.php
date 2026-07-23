@@ -1,92 +1,12 @@
 <?php
 
-function getAlternatifProyek(mysqli $conn, $idProyek)
+require_once __DIR__ . '/ranking_repository.php';
+
+function hitungRankingAhp(mysqli $conn, int $idProyek): array
 {
-    $alternatif = [];
-    $stmt = mysqli_prepare($conn, "
-        SELECT a.id_alternatif, s.nama_supplier
-        FROM alternatif a
-        JOIN supplier s ON s.id_supplier = a.id_supplier
-        WHERE a.id_proyek = ?
-        ORDER BY s.nama_supplier ASC
-    ");
-    mysqli_stmt_bind_param($stmt, "i", $idProyek);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $alternatif[$row['id_alternatif']] = $row;
-    }
-
-    return $alternatif;
-}
-
-function getBobotAhpProyek(mysqli $conn, $idProyek)
-{
-    $bobot = [];
-    $stmt = mysqli_prepare($conn, "
-        SELECT b.id_kriteria, b.bobot, b.status_konsistensi, k.nama_kriteria, k.jenis_kriteria
-        FROM bobot_ahp b
-        JOIN kriteria k ON k.id_kriteria = b.id_kriteria
-        WHERE b.id_proyek = ?
-        ORDER BY k.id_kriteria ASC
-    ");
-    mysqli_stmt_bind_param($stmt, "i", $idProyek);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $bobot[$row['id_kriteria']] = $row;
-    }
-
-    return $bobot;
-}
-
-function getBobotFahpProyek(mysqli $conn, $idProyek)
-{
-    $bobot = [];
-    $stmt = mysqli_prepare($conn, "
-        SELECT b.id_kriteria, b.bobot, k.nama_kriteria, k.jenis_kriteria
-        FROM bobot_fahp b
-        JOIN kriteria k ON k.id_kriteria = b.id_kriteria
-        WHERE b.id_proyek = ?
-        ORDER BY k.id_kriteria ASC
-    ");
-    mysqli_stmt_bind_param($stmt, "i", $idProyek);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $bobot[$row['id_kriteria']] = $row;
-    }
-
-    return $bobot;
-}
-
-function getPenilaianProyek(mysqli $conn, $idProyek)
-{
-    $penilaian = [];
-    $stmt = mysqli_prepare($conn, "
-        SELECT id_alternatif, id_kriteria, nilai
-        FROM penilaian_supplier
-        WHERE id_proyek = ?
-    ");
-    mysqli_stmt_bind_param($stmt, "i", $idProyek);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $penilaian[$row['id_alternatif']][$row['id_kriteria']] = (float) $row['nilai'];
-    }
-
-    return $penilaian;
-}
-
-function hitungRankingAhp(mysqli $conn, $idProyek)
-{
-    $alternatif = getAlternatifProyek($conn, $idProyek);
-    $bobot = getBobotAhpProyek($conn, $idProyek);
-    $penilaian = getPenilaianProyek($conn, $idProyek);
+    $alternatif = rankingRepoGetAlternatifProyek($conn, $idProyek);
+    $bobot = rankingRepoGetBobotAhpProyek($conn, $idProyek);
+    $penilaian = rankingRepoGetPenilaianProyek($conn, $idProyek);
 
     if (count($alternatif) === 0) {
         throw new RuntimeException('Data alternatif untuk proyek ini belum tersedia.');
@@ -101,24 +21,11 @@ function hitungRankingAhp(mysqli $conn, $idProyek)
         throw new RuntimeException('Bobot AHP belum konsisten.');
     }
 
-    return hitungRankingDenganBobot(
-        $alternatif,
-        $bobot,
-        $penilaian,
-        'Bobot AHP belum dihitung.'
-    );
+    return hitungRankingDenganBobot($alternatif, $bobot, $penilaian);
 }
 
-function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penilaian, $errorMessage)
+function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penilaian): array
 {
-    if (count($alternatif) === 0) {
-        throw new RuntimeException('Data alternatif untuk proyek ini belum tersedia.');
-    }
-
-    if (count($bobot) === 0) {
-        throw new RuntimeException($errorMessage);
-    }
-
     $normalisasi = [];
     $nilaiAkhir = [];
     $detail = [];
@@ -128,9 +35,7 @@ function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penila
 
         foreach ($alternatif as $idAlternatif => $dataAlternatif) {
             if (!isset($penilaian[$idAlternatif][$idKriteria])) {
-                throw new RuntimeException(
-                    'Penilaian supplier belum lengkap untuk semua alternatif dan kriteria.'
-                );
+                throw new RuntimeException('Penilaian supplier belum lengkap untuk semua alternatif dan kriteria.');
             }
 
             $nilaiKriteria[$idAlternatif] = $penilaian[$idAlternatif][$idKriteria];
@@ -182,258 +87,59 @@ function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penila
     ];
 }
 
-function hitungRankingFahp(mysqli $conn, $idProyek)
+function simpanRankingAhp(mysqli $conn, int $idProyek, array $ranking): void
 {
-    $alternatif = getAlternatifProyek($conn, $idProyek);
-    $bobot = getBobotFahpProyek($conn, $idProyek);
-    $penilaian = getPenilaianProyek($conn, $idProyek);
-
-    return hitungRankingDenganBobot(
-        $alternatif,
-        $bobot,
-        $penilaian,
-        'Bobot F-AHP belum dihitung.'
-    );
+    rankingRepoReplaceRankingAhp($conn, $idProyek, $ranking);
 }
 
-function simpanRankingMetode(mysqli $conn, $idProyek, array $ranking, $metode)
+function getRankingTersimpan(mysqli $conn, int $idProyek, string $metode = 'AHP'): array
 {
-    mysqli_begin_transaction($conn);
-
-    try {
-        $stmtDelete = mysqli_prepare($conn, "DELETE FROM hasil_perhitungan WHERE id_proyek = ? AND metode = ?");
-        mysqli_stmt_bind_param($stmtDelete, "is", $idProyek, $metode);
-        mysqli_stmt_execute($stmtDelete);
-
-        $stmtInsert = mysqli_prepare($conn, "
-            INSERT INTO hasil_perhitungan (id_proyek, id_alternatif, metode, nilai, ranking)
-            VALUES (?, ?, ?, ?, ?)
-        ");
-
-        foreach ($ranking as $idAlternatif => $data) {
-            $nilai = round($data['nilai'], 6);
-            $rank = $data['ranking'];
-            mysqli_stmt_bind_param($stmtInsert, "iisdi", $idProyek, $idAlternatif, $metode, $nilai, $rank);
-            mysqli_stmt_execute($stmtInsert);
-        }
-
-        mysqli_commit($conn);
-    } catch (Throwable $th) {
-        mysqli_rollback($conn);
-        throw $th;
-    }
-}
-
-function simpanRankingAhp(mysqli $conn, $idProyek, array $ranking)
-{
-    simpanRankingMetode($conn, $idProyek, $ranking, 'AHP');
-}
-
-function simpanRankingFahp(mysqli $conn, $idProyek, array $ranking)
-{
-    simpanRankingMetode($conn, $idProyek, $ranking, 'F-AHP');
-}
-
-function getRankingTersimpan(mysqli $conn, $idProyek, $metode)
-{
-    $ranking = [];
-    $stmt = mysqli_prepare($conn, "
-        SELECT h.*, s.nama_supplier, s.tipe_supplier, s.jenis_material
-        FROM hasil_perhitungan h
-        JOIN alternatif a ON h.id_alternatif = a.id_alternatif
-        JOIN supplier s ON a.id_supplier = s.id_supplier
-        WHERE h.id_proyek = ? AND h.metode = ?
-        ORDER BY h.ranking ASC
-    ");
-    mysqli_stmt_bind_param($stmt, "is", $idProyek, $metode);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $ranking[] = $row;
+    if ($metode !== 'AHP') {
+        return [];
     }
 
-    return $ranking;
+    return rankingRepoGetRankingAhpTersimpan($conn, $idProyek);
 }
 
-function getLaporanData(mysqli $conn, $idProyek)
+function prosesRankingAhp(mysqli $conn, int $idProyek): array
+{
+    $hasil = hitungRankingAhp($conn, $idProyek);
+    simpanRankingAhp($conn, $idProyek, $hasil['ranking']);
+
+    return $hasil;
+}
+
+function getLaporanData(mysqli $conn, int $idProyek): array
 {
     $data = [
-        'proyek' => null,
+        'proyek' => rankingRepoGetLaporanProyek($conn, $idProyek),
         'supplier' => [],
         'kriteria' => [],
         'bobot_ahp' => [],
-        'bobot_fahp' => [],
         'ranking_ahp' => [],
-        'ranking_fahp' => [],
     ];
-
-    $stmt = mysqli_prepare($conn, "SELECT * FROM proyek WHERE id_proyek = ?");
-    mysqli_stmt_bind_param($stmt, "i", $idProyek);
-    mysqli_stmt_execute($stmt);
-    $data['proyek'] = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
     if (!$data['proyek']) {
         return $data;
     }
 
-    $stmtSupplier = mysqli_prepare($conn, "
-        SELECT a.id_alternatif, s.nama_supplier, s.tipe_supplier, s.alamat, s.no_telepon, s.email, s.jenis_material, s.status
-        FROM alternatif a
-        JOIN supplier s ON a.id_supplier = s.id_supplier
-        WHERE a.id_proyek = ?
-        ORDER BY s.nama_supplier ASC
-    ");
-    mysqli_stmt_bind_param($stmtSupplier, "i", $idProyek);
-    mysqli_stmt_execute($stmtSupplier);
-    $resultSupplier = mysqli_stmt_get_result($stmtSupplier);
-    while ($row = mysqli_fetch_assoc($resultSupplier)) {
-        $data['supplier'][] = $row;
-    }
-
-    $queryKriteria = mysqli_query($conn, "SELECT * FROM kriteria ORDER BY id_kriteria ASC");
-    while ($row = mysqli_fetch_assoc($queryKriteria)) {
-        $data['kriteria'][] = $row;
-    }
-
-    $stmtAhp = mysqli_prepare($conn, "
-        SELECT b.*, k.kode_kriteria, k.nama_kriteria, k.jenis_kriteria
-        FROM bobot_ahp b
-        JOIN kriteria k ON b.id_kriteria = k.id_kriteria
-        WHERE b.id_proyek = ?
-        ORDER BY k.id_kriteria ASC
-    ");
-    mysqli_stmt_bind_param($stmtAhp, "i", $idProyek);
-    mysqli_stmt_execute($stmtAhp);
-    $resultAhp = mysqli_stmt_get_result($stmtAhp);
-    while ($row = mysqli_fetch_assoc($resultAhp)) {
-        $data['bobot_ahp'][] = $row;
-    }
-
-    $stmtFahp = mysqli_prepare($conn, "
-        SELECT b.*, k.kode_kriteria, k.nama_kriteria, k.jenis_kriteria
-        FROM bobot_fahp b
-        JOIN kriteria k ON b.id_kriteria = k.id_kriteria
-        WHERE b.id_proyek = ?
-        ORDER BY k.id_kriteria ASC
-    ");
-    mysqli_stmt_bind_param($stmtFahp, "i", $idProyek);
-    mysqli_stmt_execute($stmtFahp);
-    $resultFahp = mysqli_stmt_get_result($stmtFahp);
-    while ($row = mysqli_fetch_assoc($resultFahp)) {
-        $data['bobot_fahp'][] = $row;
-    }
+    $data['supplier'] = rankingRepoGetSupplierLaporan($conn, $idProyek);
+    $data['kriteria'] = rankingRepoGetKriteria($conn);
+    $data['bobot_ahp'] = rankingRepoGetBobotAhpLaporan($conn, $idProyek);
 
     try {
-        $hasilAhp = hitungRankingAhp($conn, $idProyek);
-        simpanRankingAhp($conn, $idProyek, $hasilAhp['ranking']);
+        prosesRankingAhp($conn, $idProyek);
     } catch (Throwable $th) {
     }
 
-    try {
-        $hasilFahp = hitungRankingFahp($conn, $idProyek);
-        simpanRankingFahp($conn, $idProyek, $hasilFahp['ranking']);
-    } catch (Throwable $th) {
-    }
-
-    $data['ranking_ahp'] = getRankingTersimpan($conn, $idProyek, 'AHP');
-    $data['ranking_fahp'] = getRankingTersimpan($conn, $idProyek, 'F-AHP');
+    $data['ranking_ahp'] = rankingRepoGetRankingAhpTersimpan($conn, $idProyek);
 
     return $data;
 }
 
-function buildPerbandinganRanking(array $rankingAhp, array $rankingFahp)
-{
-    $mapAhp = [];
-    foreach ($rankingAhp as $row) {
-        $mapAhp[$row['id_alternatif']] = $row;
-    }
-
-    $mapFahp = [];
-    foreach ($rankingFahp as $row) {
-        $mapFahp[$row['id_alternatif']] = $row;
-    }
-
-    $perbandingan = [];
-    foreach ($mapAhp as $idAlternatif => $ahp) {
-        $fahp = $mapFahp[$idAlternatif] ?? null;
-        $rankingAhpValue = (int) $ahp['ranking'];
-        $rankingFahpValue = $fahp ? (int) $fahp['ranking'] : null;
-        $selisih = $fahp ? abs($rankingAhpValue - $rankingFahpValue) : null;
-        $status = ($fahp && $rankingAhpValue === $rankingFahpValue) ? 'Tetap' : 'Berubah';
-
-        $perbandingan[] = [
-            'id_alternatif' => $idAlternatif,
-            'nama_supplier' => $ahp['nama_supplier'] ?? $ahp['supplier'],
-            'ranking_ahp' => $rankingAhpValue,
-            'ranking_fahp' => $rankingFahpValue,
-            'selisih' => $selisih,
-            'status' => $status,
-        ];
-    }
-
-    return $perbandingan;
-}
-
-function buildKesimpulanPerbandingan(array $rankingAhp, array $rankingFahp)
-{
-    $rekomendasiAhp = $rankingAhp[0] ?? null;
-    $rekomendasiFahp = $rankingFahp[0] ?? null;
-
-    if (!$rekomendasiAhp || !$rekomendasiFahp) {
-        return 'Perbandingan metode belum lengkap karena ranking AHP atau F-AHP belum tersedia.';
-    }
-
-    if ($rekomendasiAhp['id_alternatif'] === $rekomendasiFahp['id_alternatif']) {
-        return 'Metode AHP dan F-AHP menghasilkan supplier rekomendasi yang sama pada peringkat pertama.';
-    }
-
-    return 'Metode AHP dan F-AHP menghasilkan supplier peringkat pertama yang berbeda sehingga perlu pertimbangan manajerial tambahan.';
-}
-
 function getProjectWorkflowStatus(mysqli $conn, int $idProyek): array
 {
-    $status = [
-        'alternatif' => 0,
-        'kriteria' => 0,
-        'penilaian_terisi' => 0,
-        'penilaian_harus' => 0,
-        'ahp_total' => 0,
-        'ahp_konsisten' => false,
-        'fahp_total' => 0,
-    ];
-
-    $stmtAlternatif = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM alternatif WHERE id_proyek = ?");
-    mysqli_stmt_bind_param($stmtAlternatif, "i", $idProyek);
-    mysqli_stmt_execute($stmtAlternatif);
-    $status['alternatif'] = (int) (mysqli_fetch_assoc(mysqli_stmt_get_result($stmtAlternatif))['total'] ?? 0);
-
-    $queryKriteria = mysqli_query($conn, "SELECT COUNT(*) AS total FROM kriteria");
-    $status['kriteria'] = (int) (mysqli_fetch_assoc($queryKriteria)['total'] ?? 0);
-    $status['penilaian_harus'] = $status['alternatif'] * $status['kriteria'];
-
-    $stmtPenilaian = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM penilaian_supplier WHERE id_proyek = ?");
-    mysqli_stmt_bind_param($stmtPenilaian, "i", $idProyek);
-    mysqli_stmt_execute($stmtPenilaian);
-    $status['penilaian_terisi'] = (int) (mysqli_fetch_assoc(mysqli_stmt_get_result($stmtPenilaian))['total'] ?? 0);
-
-    $stmtAhp = mysqli_prepare($conn, "
-        SELECT COUNT(*) AS total, MAX(status_konsistensi = 'konsisten') AS konsisten
-        FROM bobot_ahp
-        WHERE id_proyek = ?
-    ");
-    mysqli_stmt_bind_param($stmtAhp, "i", $idProyek);
-    mysqli_stmt_execute($stmtAhp);
-    $ahpRow = mysqli_fetch_assoc(mysqli_stmt_get_result($stmtAhp));
-    $status['ahp_total'] = (int) ($ahpRow['total'] ?? 0);
-    $status['ahp_konsisten'] = (int) ($ahpRow['konsisten'] ?? 0) === 1;
-
-    $stmtFahp = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM bobot_fahp WHERE id_proyek = ?");
-    mysqli_stmt_bind_param($stmtFahp, "i", $idProyek);
-    mysqli_stmt_execute($stmtFahp);
-    $status['fahp_total'] = (int) (mysqli_fetch_assoc(mysqli_stmt_get_result($stmtFahp))['total'] ?? 0);
-
-    return $status;
+    return rankingRepoGetProjectWorkflowCounts($conn, $idProyek);
 }
 
 function getProjectWorkflowIssues(array $status): array
@@ -456,10 +162,6 @@ function getProjectWorkflowIssues(array $status): array
         $issues[] = 'Bobot AHP belum dihitung.';
     } elseif (!$status['ahp_konsisten']) {
         $issues[] = 'Bobot AHP sudah ada tetapi belum konsisten.';
-    }
-
-    if ($status['fahp_total'] === 0) {
-        $issues[] = 'Bobot F-AHP belum dihitung.';
     }
 
     return $issues;

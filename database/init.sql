@@ -45,15 +45,6 @@ CREATE TABLE kriteria (
     deskripsi TEXT
 );
 
-CREATE TABLE skala_fuzzy (
-    id_skala INT AUTO_INCREMENT PRIMARY KEY,
-    kode VARCHAR(10),
-    keterangan VARCHAR(100),
-    nilai_l DECIMAL(10,6),
-    nilai_m DECIMAL(10,6),
-    nilai_u DECIMAL(10,6)
-);
-
 CREATE TABLE alternatif (
     id_alternatif INT AUTO_INCREMENT PRIMARY KEY,
     id_proyek INT,
@@ -102,51 +93,14 @@ CREATE TABLE bobot_ahp (
     CONSTRAINT fk_bobot_ahp_kriteria FOREIGN KEY (id_kriteria) REFERENCES kriteria(id_kriteria) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE perbandingan_fahp (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_proyek INT,
-    id_kriteria_1 INT,
-    id_kriteria_2 INT,
-    id_skala INT,
-    nilai_l DECIMAL(10,6),
-    nilai_m DECIMAL(10,6),
-    nilai_u DECIMAL(10,6),
-    UNIQUE KEY unik_perbandingan_fahp (id_proyek, id_kriteria_1, id_kriteria_2),
-    CONSTRAINT fk_perbandingan_fahp_proyek FOREIGN KEY (id_proyek) REFERENCES proyek(id_proyek) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_perbandingan_fahp_kriteria_1 FOREIGN KEY (id_kriteria_1) REFERENCES kriteria(id_kriteria) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_perbandingan_fahp_kriteria_2 FOREIGN KEY (id_kriteria_2) REFERENCES kriteria(id_kriteria) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_perbandingan_fahp_skala FOREIGN KEY (id_skala) REFERENCES skala_fuzzy(id_skala) ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
-CREATE TABLE bobot_fahp (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_proyek INT,
-    id_kriteria INT,
-    bobot DECIMAL(10,6),
-    UNIQUE KEY unik_bobot_fahp (id_proyek, id_kriteria),
-    CONSTRAINT fk_bobot_fahp_proyek FOREIGN KEY (id_proyek) REFERENCES proyek(id_proyek) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_bobot_fahp_kriteria FOREIGN KEY (id_kriteria) REFERENCES kriteria(id_kriteria) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 CREATE TABLE hasil_perhitungan (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_proyek INT,
     id_alternatif INT,
-    metode ENUM('AHP','F-AHP'),
+    metode ENUM('AHP'),
     nilai DECIMAL(10,6),
     ranking INT,
     UNIQUE KEY unik_hasil_perhitungan (id_proyek, id_alternatif, metode),
     CONSTRAINT fk_hasil_proyek FOREIGN KEY (id_proyek) REFERENCES proyek(id_proyek) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_hasil_alternatif FOREIGN KEY (id_alternatif) REFERENCES alternatif(id_alternatif) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-INSERT INTO skala_fuzzy (kode, keterangan, nilai_l, nilai_m, nilai_u) VALUES
-('SP', '1 - Sama penting', 1.000000, 1.000000, 1.000000),
-('SD', '2 - Sedikit lebih penting', 1.000000, 2.000000, 3.000000),
-('C', '3 - Cukup lebih penting', 2.000000, 3.000000, 4.000000),
-('L', '4 - Lebih penting', 3.000000, 4.000000, 5.000000),
-('SL', '5 - Sangat lebih penting', 4.000000, 5.000000, 6.000000),
-('M', '6 - Dominan', 5.000000, 6.000000, 7.000000),
-('MM', '7 - Sangat dominan', 6.000000, 7.000000, 8.000000),
-('AM', '8 - Hampir mutlak', 7.000000, 8.000000, 9.000000),
-('EM', '9 - Mutlak', 8.000000, 9.000000, 9.000000);

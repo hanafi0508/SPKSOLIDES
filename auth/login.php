@@ -17,15 +17,16 @@ if (isset($_SESSION['id_user'])) {
     <link href="<?php echo BASE_URL; ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo BASE_URL; ?>/assets/css/custom.css" rel="stylesheet">
 </head>
-<body class="app-shell">
+<body class="login-shell">
 
-<div class="container mt-5">
-    <div class="col-md-4 mx-auto">
-        <div class="card shadow p-4">
+<div class="container">
+    <div class="col-md-5 col-lg-4 mx-auto">
+        <div class="card login-card shadow p-4">
 
             <div class="text-center mb-3">
                 <div class="brand-logo mx-auto mb-2">SPK</div>
-                <h4>Login</h4>
+                <h4 class="login-title">SPK Supplier</h4>
+                <p class="login-subtitle">Masuk untuk mengelola keputusan supplier proyek.</p>
             </div>
 
             <?php if (isset($_GET['error'])): ?>
@@ -42,6 +43,7 @@ if (isset($_SESSION['id_user'])) {
                         type="text" 
                         name="username" 
                         class="form-control" 
+                        placeholder="Masukkan username"
                         required
                     >
                 </div>
@@ -52,12 +54,13 @@ if (isset($_SESSION['id_user'])) {
                         type="password" 
                         name="password" 
                         class="form-control" 
+                        placeholder="Masukkan password"
                         required
                     >
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">
-                    Login
+                    Masuk
                 </button>
 
             </form>

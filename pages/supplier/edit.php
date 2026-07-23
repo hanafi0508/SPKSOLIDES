@@ -75,7 +75,7 @@ if (isset($_POST['submit'])) {
 
         <div class="mb-3">
             <label>Nama Supplier</label>
-            <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($row['nama_supplier']); ?>">
+            <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($row['nama_supplier'] ?? ''); ?>">
         </div>
 
         <div class="mb-3">
@@ -88,12 +88,12 @@ if (isset($_POST['submit'])) {
 
         <div class="mb-3">
             <label>Kontak</label>
-            <input type="text" name="telepon" class="form-control" value="<?= htmlspecialchars($row['no_telepon']); ?>">
+            <input type="text" name="telepon" class="form-control" value="<?= htmlspecialchars($row['no_telepon'] ?? ''); ?>">
         </div>
 
         <div class="mb-3">
             <label>Barang / Jasa</label>
-            <input type="text" name="material" class="form-control" value="<?= htmlspecialchars($row['jenis_material']); ?>">
+            <input type="text" name="material" class="form-control" value="<?= htmlspecialchars($row['jenis_material'] ?? ''); ?>">
         </div>
 
         <div class="mb-3">

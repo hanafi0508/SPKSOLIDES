@@ -1,12 +1,10 @@
-INSERT INTO skala_fuzzy (kode, keterangan, nilai_l, nilai_m, nilai_u) VALUES
-('1', 'Sama Penting', 1, 1, 1),
-('3', 'Sedikit Lebih Penting', 1, 3, 5),
-('5', 'Lebih Penting', 3, 5, 7),
-('7', 'Sangat Penting', 5, 7, 9),
-('9', 'Mutlak Lebih Penting', 7, 9, 9);
+# Catatan Perubahan
 
-INSERT INTO users (nama_user, username, password, level)
-VALUES ('Admin', 'admin', 'HASIL_HASH', 'admin');
+## 2026-07-23
 
-INSERT INTO users (nama_user, username, password, level)
-VALUES ('Pimpinan', 'pimpinan', 'HASIL_HASH', 'pimpinan');
+Refactor aplikasi menjadi AHP-only:
+
+1. Menu dan halaman metode tambahan dihapus.
+2. Tabel metode tambahan dihapus dari skema database.
+3. Ranking dan laporan disederhanakan menjadi hasil AHP.
+4. Fungsi ranking dipisah menjadi service dan repository sederhana.

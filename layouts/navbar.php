@@ -9,12 +9,13 @@
             </span>
         </div>
 
-        <div class="d-flex">
-            <span class="text-white me-3">
-                <?= htmlspecialchars($_SESSION['nama_user']); ?>
+        <div class="d-flex align-items-center gap-2">
+            <span class="user-pill">
+                <span class="user-initial"><?= strtoupper(substr($_SESSION['nama_user'] ?? 'U', 0, 1)); ?></span>
+                <span class="d-none d-sm-inline"><?= htmlspecialchars($_SESSION['nama_user']); ?></span>
             </span>
 
-            <a href="<?php echo BASE_URL; ?>/auth/logout.php" class="btn btn-danger btn-sm">
+            <a href="<?php echo BASE_URL; ?>/auth/logout.php" class="btn btn-light btn-sm app-logout">
                 Logout
             </a>
         </div>

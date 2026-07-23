@@ -24,22 +24,8 @@ if (!$proyek) {
 $supplier = $laporan['supplier'];
 $kriteria = $laporan['kriteria'];
 $bobotAhp = $laporan['bobot_ahp'];
-$bobotFahp = $laporan['bobot_fahp'];
 $rankingAhp = $laporan['ranking_ahp'];
-$rankingFahp = $laporan['ranking_fahp'];
-
-$mapAhp = [];
-foreach ($rankingAhp as $r) {
-    $mapAhp[$r['id_alternatif']] = $r;
-}
-
-$mapFahp = [];
-foreach ($rankingFahp as $r) {
-    $mapFahp[$r['id_alternatif']] = $r;
-}
-
 $rekomendasiAhp = $rankingAhp[0] ?? null;
-$rekomendasiFahp = $rankingFahp[0] ?? null;
 ?>
 
 <!DOCTYPE html>
@@ -126,7 +112,7 @@ $rekomendasiFahp = $rankingFahp[0] ?? null;
     <div class="judul-laporan">
         <h4>LAPORAN HASIL KEPUTUSAN</h4>
         <h5>PEMILIHAN SUPPLIER PROYEK PEMBANGUNAN</h5>
-        <p>Perbandingan Metode AHP dan F-AHP</p>
+        <p>Metode AHP</p>
         <hr>
     </div>
 
@@ -255,36 +241,7 @@ $rekomendasiFahp = $rankingFahp[0] ?? null;
         </tbody>
     </table>
 
-    <div class="section-title">E. Bobot Kriteria F-AHP</div>
-    <table class="table table-bordered table-striped">
-        <thead class="text-center">
-            <tr>
-                <th>No</th>
-                <th>Kode</th>
-                <th>Nama Kriteria</th>
-                <th>Bobot</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (count($bobotFahp) == 0) : ?>
-                <tr>
-                    <td colspan="4" class="text-center">Bobot F-AHP belum tersedia.</td>
-                </tr>
-            <?php else : ?>
-                <?php $no = 1; ?>
-                <?php foreach ($bobotFahp as $b) : ?>
-                    <tr>
-                        <td class="text-center"><?= $no++; ?></td>
-                        <td class="text-center"><?= htmlspecialchars($b['kode_kriteria']); ?></td>
-                        <td><?= htmlspecialchars($b['nama_kriteria']); ?></td>
-                        <td class="text-center"><?= number_format((float) $b['bobot'], 6); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
-
-    <div class="section-title">F. Ranking Supplier Metode AHP</div>
+    <div class="section-title">E. Ranking Supplier Metode AHP</div>
     <table class="table table-bordered table-striped">
         <thead class="text-center">
             <tr>
@@ -310,114 +267,19 @@ $rekomendasiFahp = $rankingFahp[0] ?? null;
         </tbody>
     </table>
 
-    <div class="section-title">G. Ranking Supplier Metode F-AHP</div>
-    <table class="table table-bordered table-striped">
-        <thead class="text-center">
-            <tr>
-                <th>Ranking</th>
-                <th>Nama Supplier</th>
-                <th>Nilai</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (count($rankingFahp) == 0) : ?>
-                <tr>
-                    <td colspan="3" class="text-center">Ranking F-AHP belum tersedia.</td>
-                </tr>
-            <?php else : ?>
-                <?php foreach ($rankingFahp as $r) : ?>
-                    <tr>
-                        <td class="text-center"><?= $r['ranking']; ?></td>
-                        <td><?= htmlspecialchars($r['nama_supplier']); ?></td>
-                        <td class="text-center"><?= number_format((float) $r['nilai'], 6); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <div class="section-title">F. Rekomendasi Supplier</div>
 
-    <div class="section-title">H. Perbandingan Metode</div>
-    <table class="table table-bordered table-striped">
-        <thead class="text-center">
-            <tr>
-                <th>No</th>
-                <th>Supplier</th>
-                <th>Ranking AHP</th>
-                <th>Ranking F-AHP</th>
-                <th>Selisih</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (count($rankingAhp) == 0 || count($rankingFahp) == 0) : ?>
-                <tr>
-                    <td colspan="6" class="text-center">Perbandingan metode belum tersedia.</td>
-                </tr>
-            <?php else : ?>
-                <?php $no = 1; ?>
-                <?php foreach ($mapAhp as $idAlt => $ahp) : ?>
-                    <?php
-                    $fahp = $mapFahp[$idAlt] ?? null;
-                    $rankAhp = (int) $ahp['ranking'];
-                    $rankFahp = $fahp ? (int) $fahp['ranking'] : 0;
-                    $selisih = $fahp ? abs($rankAhp - $rankFahp) : '-';
-                    $status = ($fahp && $rankAhp == $rankFahp) ? 'Tetap' : 'Berubah';
-                    ?>
-                    <tr>
-                        <td class="text-center"><?= $no++; ?></td>
-                        <td><?= htmlspecialchars($ahp['nama_supplier']); ?></td>
-                        <td class="text-center"><?= $rankAhp; ?></td>
-                        <td class="text-center"><?= $fahp ? $rankFahp : '-'; ?></td>
-                        <td class="text-center"><?= $selisih; ?></td>
-                        <td class="text-center"><?= $status; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <?php if (!$rekomendasiAhp) : ?>
 
-    <div class="section-title">I. Rekomendasi Supplier</div>
-
-    <?php if (!$rekomendasiAhp || !$rekomendasiFahp) : ?>
-
-        <p>Rekomendasi belum tersedia karena ranking AHP atau F-AHP belum lengkap.</p>
-
-    <?php elseif ($rekomendasiAhp['id_alternatif'] == $rekomendasiFahp['id_alternatif']) : ?>
-
-        <p>
-            Berdasarkan hasil perhitungan metode AHP dan F-AHP, supplier yang direkomendasikan adalah
-            <strong><?= htmlspecialchars($rekomendasiAhp['nama_supplier']); ?></strong>,
-            karena menempati ranking 1 pada kedua metode.
-        </p>
+        <p>Rekomendasi belum tersedia karena ranking AHP belum lengkap.</p>
 
     <?php else : ?>
 
         <p>
-            Berdasarkan hasil perhitungan, ranking 1 metode AHP dan F-AHP berbeda.
-            Oleh karena itu, sistem menampilkan dua kandidat supplier utama sebagai berikut:
+            Berdasarkan hasil perhitungan metode AHP, supplier yang direkomendasikan adalah
+            <strong><?= htmlspecialchars($rekomendasiAhp['nama_supplier']); ?></strong>
+            dengan nilai akhir <?= number_format((float) $rekomendasiAhp['nilai'], 6); ?>.
         </p>
-
-        <table class="table table-bordered">
-            <thead class="text-center">
-                <tr>
-                    <th>Metode</th>
-                    <th>Supplier</th>
-                    <th>Nilai</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center">AHP</td>
-                    <td><?= htmlspecialchars($rekomendasiAhp['nama_supplier']); ?></td>
-                    <td class="text-center"><?= number_format((float) $rekomendasiAhp['nilai'], 6); ?></td>
-                </tr>
-                <tr>
-                    <td class="text-center">F-AHP</td>
-                    <td><?= htmlspecialchars($rekomendasiFahp['nama_supplier']); ?></td>
-                    <td class="text-center"><?= number_format((float) $rekomendasiFahp['nilai'], 6); ?></td>
-                </tr>
-            </tbody>
-        </table>
 
     <?php endif; ?>
 

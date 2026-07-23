@@ -45,7 +45,11 @@ if ($id_proyek > 0) {
 
 <div class="col-md-10 p-4">
 
-    <h3>Penilaian Supplier</h3>
+    <div class="page-toolbar">
+        <div>
+            <h3>Penilaian Supplier</h3>
+        </div>
+    </div>
 
     <?php if (isset($_GET['error'])): ?>
         <div class="alert alert-danger">Nilai harus bilangan bulat antara 1 sampai 10</div>
@@ -55,16 +59,21 @@ if ($id_proyek > 0) {
         <div class="alert alert-success">Data berhasil disimpan</div>
     <?php endif; ?>
 
-    <form method="GET" class="mb-3">
-        <select name="proyek" class="form-control" onchange="this.form.submit()">
-            <option value="">-- Pilih Proyek --</option>
-            <?php while($p = mysqli_fetch_assoc($proyek)): ?>
-                <option value="<?= $p['id_proyek']; ?>" <?= $id_proyek==$p['id_proyek']?'selected':''; ?>>
-                    <?= $p['nama_proyek']; ?>
-                </option>
-            <?php endwhile; ?>
-        </select>
-    </form>
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET">
+                <label>Pilih Proyek</label>
+                <select name="proyek" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Pilih Proyek --</option>
+                    <?php while($p = mysqli_fetch_assoc($proyek)): ?>
+                        <option value="<?= $p['id_proyek']; ?>" <?= $id_proyek==$p['id_proyek']?'selected':''; ?>>
+                            <?= htmlspecialchars($p['nama_proyek']); ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </form>
+        </div>
+    </div>
 
     <?php if ($id_proyek): ?>
         <?php if ($workflowStatus): ?>
@@ -85,21 +94,26 @@ if ($id_proyek > 0) {
 
             <input type="hidden" name="id_proyek" value="<?= $id_proyek; ?>">
 
-            <table class="table table-bordered">
-
-                <tr>
-                    <th>Supplier</th>
-                    <?php while($k = mysqli_fetch_assoc($kriteria)): ?>
-                        <th><?= $k['nama_kriteria']; ?></th>
-                    <?php endwhile; ?>
-                </tr>
+            <div class="card mb-3">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <?php while($k = mysqli_fetch_assoc($kriteria)): ?>
+                                        <th><?= htmlspecialchars($k['nama_kriteria']); ?></th>
+                                    <?php endwhile; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
 
                 <?php
                 mysqli_data_seek($kriteria, 0);
                 while($a = mysqli_fetch_assoc($alternatif)):
                 ?>
                 <tr>
-                    <td><?= $a['nama_supplier']; ?></td>
+                    <td><strong><?= htmlspecialchars($a['nama_supplier']); ?></strong></td>
 
                     <?php while($k = mysqli_fetch_assoc($kriteria)): 
                         $val = $nilai[$a['id_alternatif']][$k['id_kriteria']] ?? '';
@@ -119,9 +133,13 @@ if ($id_proyek > 0) {
                 endwhile; 
                 ?>
 
-            </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-            <button type="submit" class="btn btn-success">Simpan</button>
+            <button type="submit" class="btn btn-primary">Simpan Penilaian</button>
 
         </form>
 

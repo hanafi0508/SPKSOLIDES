@@ -15,34 +15,46 @@ $data = mysqli_query($conn, "SELECT * FROM users");
 
 <div class="col-md-10 p-4">
 
-    <h3>Data User</h3>
+    <div class="page-toolbar">
+        <div>
+            <h3>Data User</h3>
+            <p class="text-muted mb-0">Kelola akun admin dan pimpinan.</p>
+        </div>
+        <a href="tambah.php" class="btn btn-primary">Tambah User</a>
+    </div>
 
-    <a href="tambah.php" class="btn btn-primary mb-3">Tambah</a>
-
-    <table class="table table-bordered">
-        <tr>
-            <th>No</th>
-            <th>Nama</th>
-            <th>Username</th>
-            <th>Level</th>
-            <th>Aksi</th>
-        </tr>
-
-        <?php $no=1; while($row = mysqli_fetch_assoc($data)): ?>
-        <tr>
-            <td><?= $no++; ?></td>
-            <td><?= $row['nama_user']; ?></td>
-            <td><?= $row['username']; ?></td>
-            <td><?= $row['level']; ?></td>
-            <td>
-                <a href="edit.php?id=<?= $row['id_user']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                <a href="hapus.php?id=<?= $row['id_user']; ?>" class="btn btn-danger btn-sm"
-                   onclick="return confirm('Yakin hapus?')">Hapus</a>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-
-    </table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th width="70">No</th>
+                            <th>Nama</th>
+                            <th>Username</th>
+                            <th width="130">Level</th>
+                            <th width="170">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no=1; while($row = mysqli_fetch_assoc($data)): ?>
+                        <tr>
+                            <td class="text-center"><?= $no++; ?></td>
+                            <td><?= htmlspecialchars($row['nama_user']); ?></td>
+                            <td><?= htmlspecialchars($row['username']); ?></td>
+                            <td class="text-center"><span class="badge bg-primary"><?= htmlspecialchars($row['level']); ?></span></td>
+                            <td class="text-center">
+                                <a href="edit.php?id=<?= $row['id_user']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="hapus.php?id=<?= $row['id_user']; ?>" class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Yakin hapus?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 </div>
 

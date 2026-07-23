@@ -60,7 +60,7 @@ if (isset($_POST['submit'])) {
                 <option value="">-- Pilih Supplier --</option>
                 <?php while($s = mysqli_fetch_assoc($supplier)): ?>
                     <option value="<?= $s['id_supplier']; ?>">
-                        <?= htmlspecialchars($s['nama_supplier']); ?> - <?= ucfirst(htmlspecialchars($s['tipe_supplier'] ?? 'barang')); ?> - <?= htmlspecialchars($s['jenis_material']); ?>
+                        <?= htmlspecialchars($s['nama_supplier'] ?? '-'); ?> - <?= ucfirst(htmlspecialchars($s['tipe_supplier'] ?? 'barang')); ?> - <?= htmlspecialchars($s['jenis_material'] ?? '-'); ?>
                     </option>
                 <?php endwhile; ?>
             </select>

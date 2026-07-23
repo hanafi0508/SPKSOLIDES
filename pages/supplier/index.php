@@ -24,19 +24,23 @@ $judulTipe = $tipe === 'barang' ? 'Barang' : 'Jasa';
 
 <div class="col-md-10 p-4">
 
-    <h4>Data Supplier <?= htmlspecialchars($judulTipe); ?></h4>
-
-    <div class="d-flex gap-2 mb-3">
-        <a href="index.php?tipe=barang" class="btn <?= $tipe === 'barang' ? 'btn-primary' : 'btn-outline-primary'; ?>">Barang</a>
-        <a href="index.php?tipe=jasa" class="btn <?= $tipe === 'jasa' ? 'btn-primary' : 'btn-outline-primary'; ?>">Jasa</a>
-        <a href="tambah.php?tipe=<?= urlencode($tipe); ?>" class="btn btn-success">Tambah</a>
+    <div class="page-toolbar">
+        <div>
+            <h4>Data Supplier <?= htmlspecialchars($judulTipe); ?></h4>
+            <p class="text-muted mb-0">Kelola supplier berdasarkan tipe barang atau jasa.</p>
+        </div>
+        <div class="d-flex gap-2 page-actions">
+            <a href="index.php?tipe=barang" class="btn <?= $tipe === 'barang' ? 'btn-primary' : 'btn-outline-primary'; ?>">Barang</a>
+            <a href="index.php?tipe=jasa" class="btn <?= $tipe === 'jasa' ? 'btn-primary' : 'btn-outline-primary'; ?>">Jasa</a>
+            <a href="tambah.php?tipe=<?= urlencode($tipe); ?>" class="btn btn-primary">Tambah Supplier</a>
+        </div>
     </div>
 
     <div class="card">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-bordered table-striped align-middle mb-0">
-                    <thead class="table-dark text-center">
+                    <thead class="text-center">
                         <tr>
                             <th width="70">No</th>
                             <th>Nama Supplier</th>

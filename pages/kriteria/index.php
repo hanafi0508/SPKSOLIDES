@@ -15,41 +15,50 @@ $data = mysqli_query($conn, "SELECT * FROM kriteria ORDER BY kode_kriteria ASC")
 
 <div class="col-md-10 p-4">
 
-    <h3>Data Kriteria</h3>
+    <div class="page-toolbar">
+        <div>
+            <h3>Data Kriteria</h3>
+        </div>
+        <a href="tambah.php" class="btn btn-primary">Tambah Kriteria</a>
+    </div>
 
-    <a href="tambah.php" class="btn btn-primary mb-3">Tambah</a>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th width="70">No</th>
+                            <th width="120">Kode</th>
+                            <th>Nama</th>
+                            <th width="140">Jenis</th>
+                            <th width="170">Aksi</th>
+                        </tr>
+                    </thead>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>No</th>
-                <th>Kode</th>
-                <th>Nama</th>
-                <th>Jenis</th>
-                <th width="150">Aksi</th>
-            </tr>
-        </thead>
-
-        <tbody>
-        <?php $no=1; while($row = mysqli_fetch_assoc($data)): ?>
-        <tr>
-            <td><?= $no++; ?></td>
-            <td><?= $row['kode_kriteria']; ?></td>
-            <td><?= $row['nama_kriteria']; ?></td>
-            <td>
-                <span class="badge bg-<?= $row['jenis_kriteria']=='benefit'?'success':'danger'; ?>">
-                    <?= ucfirst($row['jenis_kriteria']); ?>
-                </span>
-            </td>
-            <td>
-                <a href="edit.php?id=<?= $row['id_kriteria']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                <a href="hapus.php?id=<?= $row['id_kriteria']; ?>" class="btn btn-danger btn-sm"
-                   onclick="return confirm('Yakin hapus?')">Hapus</a>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-        </tbody>
-    </table>
+                    <tbody>
+                    <?php $no=1; while($row = mysqli_fetch_assoc($data)): ?>
+                    <tr>
+                        <td class="text-center"><?= $no++; ?></td>
+                        <td class="text-center"><strong><?= htmlspecialchars($row['kode_kriteria']); ?></strong></td>
+                        <td><?= htmlspecialchars($row['nama_kriteria']); ?></td>
+                        <td class="text-center">
+                            <span class="badge bg-<?= $row['jenis_kriteria']=='benefit'?'success':'warning text-dark'; ?>">
+                                <?= ucfirst(htmlspecialchars($row['jenis_kriteria'])); ?>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a href="edit.php?id=<?= $row['id_kriteria']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="hapus.php?id=<?= $row['id_kriteria']; ?>" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Yakin hapus?')">Hapus</a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 </div>
 
