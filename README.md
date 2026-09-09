@@ -204,8 +204,8 @@ Contoh — **Supplier 15** (peringkat 1):
 
 | Username | Password | Level |
 |---|---|---|
-| `ambatukam` | `solides123098` | Admin — kelola seluruh data |
-| `rusdi` | `solides123098` | Pimpinan — dashboard & cetak |
+| `` | `` | Admin — kelola seluruh data |
+| `` | `` | Pimpinan — dashboard & cetak |
 
 ---
 
