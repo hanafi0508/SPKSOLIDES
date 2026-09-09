@@ -36,6 +36,13 @@ if (isset($_SESSION['id_user'])) {
                 </div>
             <?php endif; ?>
 
+            <?php if (!empty($_SESSION['flash'])): ?>
+                <?php $fh = $_SESSION['flash']; unset($_SESSION['flash']); ?>
+                <div class="alert alert-<?= htmlspecialchars($fh['type'] == 'danger' ? 'danger' : 'success'); ?>">
+                    <?= htmlspecialchars($fh['message']); ?>
+                </div>
+            <?php endif; ?>
+
             <form method="POST" action="<?php echo BASE_URL; ?>/auth/proses_login.php">
 
                 <?php csrf_field(); ?>
