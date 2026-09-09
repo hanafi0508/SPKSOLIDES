@@ -1,27 +1,11 @@
 <?php
 require_once '../config/session.php';
 require_once '../config/config.php';
-require_once '../config/database.php';
 require_once '../functions/auth_function.php';
 
 if (isset($_SESSION['id_user'])) {
     header("Location: " . BASE_URL . "/pages/dashboard.php");
     exit;
-}
-
-$lockedRemaining = 0;
-$lockedUsername = $_SESSION['last_login_user'] ?? ($_GET['username'] ?? '');
-
-if ($lockedUsername !== '') {
-    $check = login_is_blocked($conn, $lockedUsername, login_client_ip());
-    if ($check['blocked']) {
-        $lockedRemaining = (int) ceil($check['remaining'] / 60);
-    }
-}
-
-if (isset($_GET['locked']) && $lockedRemaining === 0) {
-    $wait = max(1, (int) ($_GET['wait'] ?? 1));
-    $lockedRemaining = $wait;
 }
 ?>
 
@@ -36,24 +20,19 @@ if (isset($_GET['locked']) && $lockedRemaining === 0) {
 </head>
 <body class="login-shell">
 
+
 <div class="container">
     <div class="col-md-5 col-lg-4 mx-auto">
         <div class="card login-card shadow p-4">
 
             <div class="text-center mb-3">
-                <img src="<?php echo BASE_URL; ?>/assets/logo-solides.png" alt="SOLIDES" class="brand-logo-img mb-2">
+                <div class="brand-logo mx-auto mb-2">SOLIDES</div>
                 <h4 class="login-title fw-bold">SOLIDES</h4>
             </div>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="alert alert-danger">
                     Username atau password salah!
-                </div>
-            <?php endif; ?>
-
-            <?php if ($lockedRemaining > 0): ?>
-                <div class="alert alert-warning">
-                    Terlalu banyak percobaan login gagal. Akun terkunci sementara, coba lagi dalam ±<?= $lockedRemaining; ?> menit.
                 </div>
             <?php endif; ?>
 
@@ -68,7 +47,6 @@ if (isset($_GET['locked']) && $lockedRemaining === 0) {
                         name="username" 
                         class="form-control" 
                         placeholder="Masukkan username"
-                        <?= $lockedRemaining > 0 ? 'disabled' : ''; ?>
                         required
                     >
                 </div>
@@ -80,12 +58,11 @@ if (isset($_GET['locked']) && $lockedRemaining === 0) {
                         name="password" 
                         class="form-control" 
                         placeholder="Masukkan password"
-                        <?= $lockedRemaining > 0 ? 'disabled' : ''; ?>
                         required
                     >
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100" <?= $lockedRemaining > 0 ? 'disabled' : ''; ?>>
+                <button type="submit" class="btn btn-primary w-100">
                     Masuk
                 </button>
 

@@ -226,10 +226,36 @@ php -S localhost:8000
 
 Konfigurasi koneksi DB di `config/database.php` (default: `root` / kosong / `spk_supplier`).
 
-### Konfigurasi Produksi (VPS)
+### Konfigurasi Produksi (VPS / Shared Hosting)
 
-- **Kredensial DB**: atur lewat env `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, atau salin `config/database.local.example.php` → `config/database.local.php` lalu isi kredensialnya (file ini tidak ikut di-git). Gunakan user MySQL non-root dengan password kuat (`bind-address=127.0.0.1`).
-- **Sembunyikan error**: set env `APP_ENV=prod` (melalui php-fpm pool `env[APP_ENV]` + `clear_env=no`, atau dimanapun Anda menjalankan PHP). Saat `prod`, `display_errors` dimatikan dan pesan error DB diganti pesan generik; detail masuk ke error log.
+> **Penting:** PHP hanya membaca env via `getenv()` jika diset di lingkungan proses
+> (php-fpm `env[DB_*]` + `clear_env=no`, `.htaccess` `SetEnv`, dll). File `.env` di repo ini
+> **tidak dibaca otomatis** — ia hanya dokumentasi. Jika env tidak ada, aplikasi memakai
+> default `root`/kosong yang hampir pasti gagal di server → halaman error.
+
+Langkah (shared hosting cPanel/WHM paling umum):
+
+1. **Isi kredensial DB** — di server, buat file `config/database.local.php` dari
+   `config/database.local.example.php` lalu isi `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`
+   dengan akun MySQL hosting (bukan root). File ini tidak ikut di-git.
+2. **Jalankan migrasi brute-force login** (jika DB sudah pernah dibuat sebelumnya):
+   ```bash
+   mysql -u <user> -p <nama_db> < database/migration_20260909_login_attempts.sql
+   ```
+   Lewati langkah ini jika DB baru diimpor dari `database/init.sql` (sudah berisi tabel).
+3. **Cek error log server** (panel → Error Log / Apache Error Log) untuk melihat
+   fatal error sebenarnya; di prod `display_errors=0` sehingga error disembunyikan jadi 500.
+
+Opsi env via `.htaccess` (bila PHP dijalankan sebagai module Apache, bukan FPM):
+```apache
+SetEnv APP_ENV prod
+SetEnv DB_HOST 127.0.0.1
+SetEnv DB_USER spk_user
+SetEnv DB_PASS rahasia
+SetEnv DB_NAME spk_supplier
+```
+
+- **Sembunyikan error**: set env `APP_ENV=prod`. Saat `prod`, `display_errors` dimatikan dan detail error masuk ke error log.
 - **Security headers** (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) dikirim otomatis oleh `config/config.php`; pastikan HTTPS aktif supaya cookie sesi (`SOLIDES_SESSID`) ikut `Secure`.
 - **Blokir di web server**: akses ke `/config/`, `/functions/`, `/layouts/`, `/database/`, `/.git`, dan file `*.sql`/`*.md`.
 
