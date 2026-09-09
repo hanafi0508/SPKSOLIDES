@@ -3,13 +3,17 @@
 header('Content-Type: text/plain; charset=utf-8');
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
+require_once __DIR__ . '/config/dotenv.php';
 
 echo "PHP: " . PHP_VERSION . "\n";
 echo "SAPI: " . php_sapi_name() . "\n";
 echo "DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? '?') . "\n";
-echo "SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? '?') . "\n\n";
+echo "SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? '?') . "\n";
 
-echo "=== ENV DB (getenv) ===\n";
+$envFile = dirname(__DIR__) . '/.env';
+echo ".env ada  : " . (is_file($envFile) ? (is_readable($envFile) ? "YA (terbaca)\n" : "ADA tapi TIDAK terbaca www-data\n") : "TIDAK — salin .env.example ke .env\n");
+
+echo "\n=== ENV DB (getenv, via .env loader) ===\n";
 foreach (['APP_ENV', 'DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $k) {
     $v = getenv($k);
     echo "$k = " . ($v === false ? '(TIDAK tersedia)' : ($k === 'DB_PASS' ? '(terisi)' : $v)) . "\n";
@@ -27,7 +31,7 @@ echo "host=$DB_HOST user=$DB_USER db=$DB_NAME\n";
 $c = @mysqli_connect($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
 if (!$c) {
     echo "KONEKSI GAGAL: " . mysqli_connect_error() . "\n";
-    echo "\nSolusi: buat config/database.local.php dengan kredensial DB benar di server.\n";
+    echo "\nSolusi: isi variabel DB_HOST/DB_USER/DB_PASS/DB_NAME pada file .env di root project.\n";
 } else {
     echo "Koneksi berhasil.\n";
     $t = @mysqli_query($c, "SHOW TABLES LIKE 'login_attempts'");

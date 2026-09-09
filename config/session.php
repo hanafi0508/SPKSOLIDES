@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/dotenv.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_name('SOLIDES_SESSID');
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
