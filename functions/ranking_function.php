@@ -1,66 +1,44 @@
 <?php
 
 require_once __DIR__ . '/ranking_repository.php';
+require_once __DIR__ . '/ahp_function.php';
 
-function hitungRankingAhp(mysqli $conn, int $idProyek): array
+function hitungSkorSupplier(array $supplier, array $bobotKriteria, array $skorPerKriteria): array
 {
-    $alternatif = rankingRepoGetAlternatifProyek($conn, $idProyek);
-    $bobot = rankingRepoGetBobotAhpProyek($conn, $idProyek);
-    $penilaian = rankingRepoGetPenilaianProyek($conn, $idProyek);
-
-    if (count($alternatif) === 0) {
-        throw new RuntimeException('Data alternatif untuk proyek ini belum tersedia.');
+    if (count($supplier) < 2) {
+        throw new RuntimeException('Minimal 2 supplier untuk perhitungan.');
     }
 
-    if (count($bobot) === 0) {
-        throw new RuntimeException('Bobot AHP belum dihitung.');
+    if (count($bobotKriteria) === 0) {
+        throw new RuntimeException('Bobot kriteria belum dihitung.');
     }
 
-    $status = reset($bobot)['status_konsistensi'] ?? 'tidak_konsisten';
-    if ($status !== 'konsisten') {
-        throw new RuntimeException('Bobot AHP belum konsisten.');
-    }
-
-    return hitungRankingDenganBobot($alternatif, $bobot, $penilaian);
-}
-
-function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penilaian): array
-{
-    $normalisasi = [];
-    $nilaiAkhir = [];
-    $detail = [];
-
-    foreach ($bobot as $idKriteria => $dataBobot) {
-        $nilaiKriteria = [];
-
-        foreach ($alternatif as $idAlternatif => $dataAlternatif) {
-            if (!isset($penilaian[$idAlternatif][$idKriteria])) {
-                throw new RuntimeException('Penilaian supplier belum lengkap untuk semua alternatif dan kriteria.');
-            }
-
-            $nilaiKriteria[$idAlternatif] = $penilaian[$idAlternatif][$idKriteria];
+    foreach ($bobotKriteria as $dataBobot) {
+        if (($dataBobot['status_konsistensi'] ?? '') !== 'konsisten') {
+            throw new RuntimeException('Bobot kriteria belum konsisten.');
         }
+    }
 
-        $maksimum = max($nilaiKriteria);
-        $minimum = min($nilaiKriteria);
+    $detail = [];
+    $nilaiAkhir = [];
 
-        foreach ($nilaiKriteria as $idAlternatif => $nilai) {
-            if ($dataBobot['jenis_kriteria'] === 'benefit') {
-                $normal = $maksimum > 0 ? $nilai / $maksimum : 0;
-            } else {
-                $normal = $nilai > 0 ? $minimum / $nilai : 0;
+    foreach ($bobotKriteria as $idKriteria => $dataBobot) {
+        $bobot = (float) $dataBobot['bobot'];
+
+        foreach ($supplier as $idSupplier => $dataSupplier) {
+            $skor = (int) ($skorPerKriteria[$idKriteria][$idSupplier] ?? 0);
+
+            if ($skor < 1 || $skor > 9) {
+                throw new RuntimeException('Skor supplier belum lengkap (1-9) pada kriteria "' . $dataBobot['nama_kriteria'] . '".');
             }
 
-            $skor = $normal * (float) $dataBobot['bobot'];
-
-            $normalisasi[$idAlternatif][$idKriteria] = $normal;
-            $nilaiAkhir[$idAlternatif] = ($nilaiAkhir[$idAlternatif] ?? 0) + $skor;
-            $detail[$idAlternatif][$idKriteria] = [
-                'nilai_asli' => $nilai,
-                'normalisasi' => $normal,
-                'bobot' => (float) $dataBobot['bobot'],
+            $skorBobot = $skor * $bobot;
+            $detail[$idSupplier][$idKriteria] = [
                 'skor' => $skor,
+                'bobot' => $bobot,
+                'skor_bobot' => $skorBobot,
             ];
+            $nilaiAkhir[$idSupplier] = ($nilaiAkhir[$idSupplier] ?? 0) + $skorBobot;
         }
     }
 
@@ -68,101 +46,30 @@ function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penila
 
     $ranking = [];
     $peringkat = 1;
-    foreach ($nilaiAkhir as $idAlternatif => $nilai) {
-        $ranking[$idAlternatif] = [
-            'id_alternatif' => $idAlternatif,
+    foreach ($nilaiAkhir as $idSupplier => $nilai) {
+        $ranking[] = [
+            'id_supplier' => $idSupplier,
             'ranking' => $peringkat++,
             'nilai' => $nilai,
-            'nama_supplier' => $alternatif[$idAlternatif]['nama_supplier'],
-            'supplier' => $alternatif[$idAlternatif]['nama_supplier'],
+            'nama_supplier' => $supplier[$idSupplier]['nama_supplier'],
         ];
     }
 
     return [
-        'alternatif' => $alternatif,
-        'bobot' => $bobot,
-        'normalisasi' => $normalisasi,
         'detail' => $detail,
         'ranking' => $ranking,
     ];
 }
 
-function simpanRankingAhp(mysqli $conn, int $idProyek, array $ranking): void
+function getLaporanData(mysqli $conn): array
 {
-    rankingRepoReplaceRankingAhp($conn, $idProyek, $ranking);
-}
-
-function getRankingTersimpan(mysqli $conn, int $idProyek, string $metode = 'AHP'): array
-{
-    if ($metode !== 'AHP') {
-        return [];
-    }
-
-    return rankingRepoGetRankingAhpTersimpan($conn, $idProyek);
-}
-
-function prosesRankingAhp(mysqli $conn, int $idProyek): array
-{
-    $hasil = hitungRankingAhp($conn, $idProyek);
-    simpanRankingAhp($conn, $idProyek, $hasil['ranking']);
-
-    return $hasil;
-}
-
-function getLaporanData(mysqli $conn, int $idProyek): array
-{
-    $data = [
-        'proyek' => rankingRepoGetLaporanProyek($conn, $idProyek),
-        'supplier' => [],
-        'kriteria' => [],
-        'bobot_ahp' => [],
-        'ranking_ahp' => [],
+    return [
+        'supplier' => array_values(rankingRepoGetSupplierAktif($conn)),
+        'kriteria' => rankingRepoGetKriteria($conn),
+        'bobot_ahp' => rankingRepoGetBobotAhpLaporan($conn),
+        'skor_supplier' => rankingRepoGetSkorSupplierLaporan($conn),
+        'ranking_ahp' => rankingRepoGetRankingTersimpan($conn),
     ];
-
-    if (!$data['proyek']) {
-        return $data;
-    }
-
-    $data['supplier'] = rankingRepoGetSupplierLaporan($conn, $idProyek);
-    $data['kriteria'] = rankingRepoGetKriteria($conn);
-    $data['bobot_ahp'] = rankingRepoGetBobotAhpLaporan($conn, $idProyek);
-
-    try {
-        prosesRankingAhp($conn, $idProyek);
-    } catch (Throwable $th) {
-    }
-
-    $data['ranking_ahp'] = rankingRepoGetRankingAhpTersimpan($conn, $idProyek);
-
-    return $data;
 }
 
-function getProjectWorkflowStatus(mysqli $conn, int $idProyek): array
-{
-    return rankingRepoGetProjectWorkflowCounts($conn, $idProyek);
-}
 
-function getProjectWorkflowIssues(array $status): array
-{
-    $issues = [];
-
-    if ($status['alternatif'] === 0) {
-        $issues[] = 'Belum ada supplier yang dimasukkan ke menu Perhitungan.';
-    }
-
-    if ($status['kriteria'] === 0) {
-        $issues[] = 'Data kriteria belum tersedia.';
-    }
-
-    if ($status['penilaian_harus'] > 0 && $status['penilaian_terisi'] < $status['penilaian_harus']) {
-        $issues[] = 'Penilaian supplier belum lengkap untuk semua kombinasi supplier dan kriteria.';
-    }
-
-    if ($status['ahp_total'] === 0) {
-        $issues[] = 'Bobot AHP belum dihitung.';
-    } elseif (!$status['ahp_konsisten']) {
-        $issues[] = 'Bobot AHP sudah ada tetapi belum konsisten.';
-    }
-
-    return $issues;
-}

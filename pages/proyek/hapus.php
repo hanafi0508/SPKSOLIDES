@@ -1,15 +1,9 @@
 <?php
-require_once '../../config/session.php';
-require_once '../../config/database.php';
-require_once '../../functions/auth_function.php';
-
-check_login();
-check_admin();
+require_once '../../functions/init.php';
+require_auth('admin');
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-$stmt = mysqli_prepare($conn, "DELETE FROM proyek WHERE id_proyek = ?");
-mysqli_stmt_bind_param($stmt, "i", $id);
-mysqli_stmt_execute($stmt);
+db_exec($conn, 'DELETE FROM proyek WHERE id_proyek = ?', 'i', [$id]);
 
-header("Location: index.php");
+alertRedirect('Proyek berhasil dihapus!', 'index.php');
 exit;

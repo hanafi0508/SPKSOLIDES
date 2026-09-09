@@ -3,3 +3,7 @@ node_modules
 ~$data.xlsx
 package-lock.json
 package.json
+config/database.php
+config/database.local.php
+database/local_*.sql
+.env

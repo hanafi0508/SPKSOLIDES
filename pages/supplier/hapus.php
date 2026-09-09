@@ -1,21 +1,9 @@
 <?php
-require_once '../../config/session.php';
-require_once '../../config/database.php';
-require_once '../../functions/auth_function.php';
-
-check_login();
-check_admin();
+require_once '../../functions/init.php';
+require_auth('admin');
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-$tipe = $_GET['tipe'] ?? 'barang';
+db_exec($conn, 'DELETE FROM supplier WHERE id_supplier = ?', 'i', [$id]);
 
-if (!in_array($tipe, ['barang', 'jasa'], true)) {
-    $tipe = 'barang';
-}
-
-$stmt = mysqli_prepare($conn, "DELETE FROM supplier WHERE id_supplier = ?");
-mysqli_stmt_bind_param($stmt, "i", $id);
-mysqli_stmt_execute($stmt);
-
-header("Location: index.php?tipe=" . urlencode($tipe));
+alertRedirect('Supplier berhasil dihapus!', 'index.php');
 exit;
