@@ -74,7 +74,6 @@ function hitungRankingDenganBobot(array $alternatif, array $bobot, array $penila
             'ranking' => $peringkat++,
             'nilai' => $nilai,
             'nama_supplier' => $alternatif[$idAlternatif]['nama_supplier'],
-            'supplier' => $alternatif[$idAlternatif]['nama_supplier'],
         ];
     }
 
@@ -116,7 +115,9 @@ function getLaporanData(mysqli $conn, int $idProyek): array
         'supplier' => [],
         'kriteria' => [],
         'bobot_ahp' => [],
+        'bobot_konsisten' => false,
         'ranking_ahp' => [],
+        'ranking_tersimpan' => false,
     ];
 
     if (!$data['proyek']) {
@@ -127,12 +128,12 @@ function getLaporanData(mysqli $conn, int $idProyek): array
     $data['kriteria'] = rankingRepoGetKriteria($conn);
     $data['bobot_ahp'] = rankingRepoGetBobotAhpLaporan($conn, $idProyek);
 
-    try {
-        prosesRankingAhp($conn, $idProyek);
-    } catch (Throwable $th) {
+    if (count($data['bobot_ahp']) > 0) {
+        $data['bobot_konsisten'] = ($data['bobot_ahp'][0]['status_konsistensi'] ?? '') === 'konsisten';
     }
 
     $data['ranking_ahp'] = rankingRepoGetRankingAhpTersimpan($conn, $idProyek);
+    $data['ranking_tersimpan'] = count($data['ranking_ahp']) > 0;
 
     return $data;
 }

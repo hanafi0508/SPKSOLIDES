@@ -12,15 +12,17 @@ $hasilAhp = null;
 $rekomendasiAhp = null;
 $workflowStatus = null;
 $workflowIssues = [];
+$rankingTersimpan = [];
 
 $proyekList = mysqli_query($conn, "SELECT id_proyek, nama_proyek FROM proyek ORDER BY id_proyek DESC");
 
 if ($id_proyek > 0) {
     $workflowStatus = getProjectWorkflowStatus($conn, $id_proyek);
     $workflowIssues = getProjectWorkflowIssues($workflowStatus);
+    $rankingTersimpan = rankingRepoGetRankingAhpTersimpan($conn, $id_proyek);
 
     try {
-        $hasilAhp = prosesRankingAhp($conn, $id_proyek);
+        $hasilAhp = hitungRankingAhp($conn, $id_proyek);
         $rankingAhp = array_values($hasilAhp['ranking']);
         $rekomendasiAhp = $rankingAhp[0] ?? null;
     } catch (Throwable $th) {
@@ -59,38 +61,57 @@ include '../../layouts/sidebar.php';
             <a href="../laporan/index.php?id_proyek=<?= $id_proyek; ?>" class="btn btn-dark">Laporan</a>
         </div>
 
-        <?php if ($workflowStatus): ?>
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <div class="card p-3">
-                        <small class="text-muted">Supplier</small>
-                        <strong><?= $workflowStatus['alternatif']; ?></strong>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card p-3">
-                        <small class="text-muted">Penilaian</small>
-                        <strong><?= $workflowStatus['penilaian_terisi']; ?>/<?= $workflowStatus['penilaian_harus']; ?></strong>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card p-3">
-                        <small class="text-muted">AHP</small>
-                        <strong><?= $workflowStatus['ahp_konsisten'] ? 'Konsisten' : 'Belum Siap'; ?></strong>
-                    </div>
+        <?php if (isset($_GET['status'])): ?>
+            <?php if ($_GET['status'] == 'sukses'): ?>
+                <div class="alert alert-success">Ranking AHP berhasil diproses dan disimpan.</div>
+            <?php elseif ($_GET['status'] == 'gagal'): ?>
+                <div class="alert alert-danger">Ranking AHP gagal diproses. Periksa kembali data proyek.</div>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <small class="text-muted">Supplier</small>
+                    <strong><?= $workflowStatus['alternatif']; ?></strong>
                 </div>
             </div>
-
-            <?php if (!empty($workflowIssues)): ?>
-                <div class="alert alert-warning">
-                    <strong>Flow proyek ini belum lengkap:</strong>
-                    <ul class="mb-0 mt-2">
-                        <?php foreach ($workflowIssues as $issue): ?>
-                            <li><?= htmlspecialchars($issue); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <small class="text-muted">Penilaian</small>
+                    <strong><?= $workflowStatus['penilaian_terisi']; ?>/<?= $workflowStatus['penilaian_harus']; ?></strong>
                 </div>
-            <?php endif; ?>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <small class="text-muted">AHP</small>
+                    <strong><?= $workflowStatus['ahp_konsisten'] ? 'Konsisten' : 'Belum Siap'; ?></strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <small class="text-muted">Ranking Tersimpan</small>
+                    <strong><?= count($rankingTersimpan) > 0 ? 'Ya' : 'Belum'; ?></strong>
+                </div>
+            </div>
+        </div>
+
+        <?php if ($_SESSION['level'] === 'admin'): ?>
+            <form method="POST" action="proses.php" class="mb-3">
+                <input type="hidden" name="id_proyek" value="<?= $id_proyek; ?>">
+                <button type="submit" class="btn btn-primary">Proses & Simpan Ranking</button>
+            </form>
+        <?php endif; ?>
+
+        <?php if (!empty($workflowIssues)): ?>
+            <div class="alert alert-warning">
+                <strong>Flow proyek ini belum lengkap:</strong>
+                <ul class="mb-0 mt-2">
+                    <?php foreach ($workflowIssues as $issue): ?>
+                        <li><?= htmlspecialchars($issue); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         <?php endif; ?>
     <?php endif; ?>
 
@@ -114,7 +135,7 @@ include '../../layouts/sidebar.php';
                         <?php foreach ($hasilAhp['ranking'] as $row): ?>
                             <tr>
                                 <td class="text-center"><?= $row['ranking']; ?></td>
-                                <td><?= htmlspecialchars($row['supplier']); ?></td>
+                                <td><?= htmlspecialchars($row['nama_supplier']); ?></td>
                                 <td class="text-center"><?= number_format($row['nilai'], 6); ?></td>
                             </tr>
                         <?php endforeach; ?>
@@ -128,7 +149,7 @@ include '../../layouts/sidebar.php';
             <div class="card-body">
                 <?php if ($rekomendasiAhp): ?>
                     <p class="mb-0">
-                        Supplier yang direkomendasikan adalah <strong><?= htmlspecialchars($rekomendasiAhp['supplier']); ?></strong>
+                        Supplier yang direkomendasikan adalah <strong><?= htmlspecialchars($rekomendasiAhp['nama_supplier']); ?></strong>
                         dengan nilai akhir <?= number_format($rekomendasiAhp['nilai'], 6); ?>.
                     </p>
                 <?php else: ?>

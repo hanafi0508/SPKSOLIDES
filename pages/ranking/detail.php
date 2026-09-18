@@ -53,7 +53,7 @@ include '../../layouts/sidebar.php';
                         <tbody>
                             <?php foreach ($hasilRanking['ranking'] as $idAlternatif => $rank): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($rank['supplier']); ?></td>
+                                    <td><?= htmlspecialchars($rank['nama_supplier']); ?></td>
                                     <?php foreach ($hasilRanking['bobot'] as $idKriteria => $bobot): ?>
                                         <?php $detail = $hasilRanking['detail'][$idAlternatif][$idKriteria]; ?>
                                         <td>

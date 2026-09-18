@@ -24,6 +24,7 @@ if (!$proyek) {
 $supplier = $laporan['supplier'];
 $kriteria = $laporan['kriteria'];
 $bobotAhp = $laporan['bobot_ahp'];
+$bobotKonsisten = $laporan['bobot_konsisten'];
 $rankingAhp = $laporan['ranking_ahp'];
 $rekomendasiAhp = $rankingAhp[0] ?? null;
 ?>
@@ -33,7 +34,7 @@ $rekomendasiAhp = $rankingAhp[0] ?? null;
 <head>
     <meta charset="UTF-8">
     <title>Cetak Laporan Hasil Keputusan</title>
-    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/bootstrap/css/bootstrap.min.css">
 
     <style>
         body {
@@ -238,6 +239,13 @@ $rekomendasiAhp = $rankingAhp[0] ?? null;
                     <td class="text-center"><?= htmlspecialchars($bobotAhp[0]['status_konsistensi'] ?? '-'); ?></td>
                 </tr>
             <?php endif; ?>
+            <?php if (count($bobotAhp) > 0 && !$bobotKonsisten) : ?>
+                <tr>
+                    <td colspan="4" class="text-center text-danger">
+                        Bobot AHP belum konsisten, ranking belum dapat diproses untuk proyek ini.
+                    </td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 
@@ -253,7 +261,9 @@ $rekomendasiAhp = $rankingAhp[0] ?? null;
         <tbody>
             <?php if (count($rankingAhp) == 0) : ?>
                 <tr>
-                    <td colspan="3" class="text-center">Ranking AHP belum tersedia.</td>
+                    <td colspan="3" class="text-center">
+                        <?= (count($bobotAhp) > 0 && !$bobotKonsisten) ? 'Ranking AHP belum dapat diproses karena bobot belum konsisten.' : 'Ranking AHP belum diproses.'; ?>
+                    </td>
                 </tr>
             <?php else : ?>
                 <?php foreach ($rankingAhp as $r) : ?>
@@ -295,6 +305,6 @@ $rekomendasiAhp = $rankingAhp[0] ?? null;
 
 </div>
 
-<script src="../../assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="<?php echo BASE_URL; ?>/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

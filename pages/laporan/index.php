@@ -22,7 +22,9 @@ if ($id_proyek > 0) {
     $supplier = $laporan['supplier'];
     $kriteria = $laporan['kriteria'];
     $bobotAhp = $laporan['bobot_ahp'];
+    $bobotKonsisten = $laporan['bobot_konsisten'];
     $rankingAhp = $laporan['ranking_ahp'];
+    $rankingTersimpan = $laporan['ranking_tersimpan'];
 }
 
 $rekomendasiAhp = $rankingAhp[0] ?? null;
@@ -242,6 +244,12 @@ include "../../layouts/sidebar.php";
                             <span class="badge bg-danger">Tidak Konsisten</span>
                         <?php endif; ?>
                     </div>
+
+                    <?php if (!$bobotKonsisten) : ?>
+                        <div class="alert alert-danger mt-3 mb-0">
+                            Bobot AHP belum konsisten, ranking belum dapat diproses untuk proyek ini.
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -252,7 +260,13 @@ include "../../layouts/sidebar.php";
             </div>
             <div class="card-body">
                 <?php if (count($rankingAhp) == 0) : ?>
-                    <div class="alert alert-warning">Ranking AHP belum tersedia.</div>
+                    <?php if (count($bobotAhp) > 0 && !$bobotKonsisten) : ?>
+                        <div class="alert alert-danger">Bobot AHP belum konsisten, ranking belum dapat diproses.</div>
+                    <?php else : ?>
+                        <div class="alert alert-warning">
+                            Ranking AHP belum diproses. Admin dapat memproses melalui halaman Ranking.
+                        </div>
+                    <?php endif; ?>
                 <?php else : ?>
                     <table class="table table-bordered table-striped">
                         <thead class="table-dark text-center">

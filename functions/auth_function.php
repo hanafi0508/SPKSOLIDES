@@ -11,13 +11,7 @@ function check_login() {
 
 function check_admin() {
     if ($_SESSION['level'] !== 'admin') {
-        echo "Akses ditolak";
-        exit;
-    }
-}
-
-function check_pimpinan() {
-    if ($_SESSION['level'] !== 'pimpinan') {
+        header("HTTP/1.1 403 Forbidden");
         echo "Akses ditolak";
         exit;
     }
