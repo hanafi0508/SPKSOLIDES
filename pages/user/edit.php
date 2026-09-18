@@ -35,13 +35,13 @@ if (isset($_POST['submit'])) {
     } elseif (!in_array($level, ['admin', 'pimpinan'], true)) {
         $error = "Level user tidak valid";
     } elseif (!empty($_POST['password'])) {
-        $password = $_POST['password'];
+        $passwordHash = hash_user_password($_POST['password']);
         $stmtUpdate = mysqli_prepare($conn, "
             UPDATE users
             SET nama_user = ?, username = ?, password = ?, level = ?
             WHERE id_user = ?
         ");
-        mysqli_stmt_bind_param($stmtUpdate, "ssssi", $nama, $username, $password, $level, $id);
+        mysqli_stmt_bind_param($stmtUpdate, "ssssi", $nama, $username, $passwordHash, $level, $id);
         mysqli_stmt_execute($stmtUpdate);
         header("Location: index.php");
         exit;

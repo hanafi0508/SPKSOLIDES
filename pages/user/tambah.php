@@ -25,11 +25,12 @@ if (isset($_POST['submit'])) {
     } elseif (!in_array($level, ['admin', 'pimpinan'], true)) {
         $error = "Level user tidak valid";
     } else {
+        $passwordHash = hash_user_password($password);
         $stmtInsert = mysqli_prepare($conn, "
             INSERT INTO users (nama_user, username, password, level)
             VALUES (?, ?, ?, ?)
         ");
-        mysqli_stmt_bind_param($stmtInsert, "ssss", $nama, $username, $password, $level);
+        mysqli_stmt_bind_param($stmtInsert, "ssss", $nama, $username, $passwordHash, $level);
         mysqli_stmt_execute($stmtInsert);
         header("Location: index.php");
         exit;

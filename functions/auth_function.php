@@ -18,13 +18,22 @@ function check_admin() {
 }
 
 function hash_user_password($password) {
-    return (string) $password;
+    return password_hash((string) $password, PASSWORD_DEFAULT);
 }
 
 function verify_user_password($inputPassword, $storedPassword) {
-    return hash_equals((string) $storedPassword, (string) $inputPassword);
+    $inputPassword = (string) $inputPassword;
+    $storedPassword = (string) $storedPassword;
+
+    if (password_needs_upgrade_from_legacy($storedPassword)) {
+        return hash_equals($storedPassword, $inputPassword);
+    }
+
+    return password_verify($inputPassword, $storedPassword);
 }
 
 function password_needs_upgrade_from_legacy($storedPassword) {
-    return false;
+    $info = password_get_info((string) $storedPassword);
+
+    return ($info['algo'] ?? 0) === 0;
 }
