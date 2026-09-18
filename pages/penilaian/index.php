@@ -45,10 +45,8 @@ if ($id_proyek > 0) {
 
 <div class="col-md-10 p-4">
 
-    <div class="page-toolbar">
-        <div>
-            <h3>Penilaian Supplier</h3>
-        </div>
+    <div class="mb-3">
+        <h3 class="fw-bold mb-0">Penilaian Supplier</h3>
     </div>
 
     <?php if (isset($_GET['error'])): ?>

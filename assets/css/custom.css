@@ -1,34 +1,29 @@
-/* Project overrides */
+/* ===== Brand overrides Bootstrap (5.3 variable theming) ===== */
 
 :root {
     --app-navbar-height: 64px;
-    --app-sidebar-width: 248px;
     --app-bg: #f4f7fb;
-    --app-surface: #ffffff;
-    --app-surface-muted: #f8fafc;
+    --app-teal: #0f766e;
+    --app-teal-dark: #115e59;
     --app-border: #d9e2ec;
-    --app-text: #1f2937;
-    --app-muted: #6b7280;
-    --app-primary: #0f766e;
-    --app-primary-dark: #115e59;
-    --app-accent: #2563eb;
-    --app-danger: #b91c1c;
-    --app-warning: #b45309;
     --app-radius: 8px;
-    --app-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-    --app-font-size: 14px;
+
+    --bs-primary: var(--app-teal);
+    --bs-primary-rgb: 15, 118, 110;
+    --bs-success: var(--app-teal);
+    --bs-success-rgb: 15, 118, 110;
+    --bs-link-color: var(--app-teal);
+    --bs-link-hover-color: var(--app-teal-dark);
+    --bs-focus-ring-color: rgba(15, 118, 110, 0.25);
 }
 
 html {
-    font-size: var(--app-font-size);
+    font-size: 14px;
 }
 
 body.app-shell {
     min-height: 100vh;
     padding-top: var(--app-navbar-height);
-    color: var(--app-text);
-    font-size: 1rem;
-    line-height: 1.5;
     background: var(--app-bg);
 }
 
@@ -36,35 +31,17 @@ a {
     text-decoration: none;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* ===== Navbar ===== */
+
 .app-navbar {
     min-height: var(--app-navbar-height);
     background: #0f172a;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.app-navbar .container-fluid {
-    padding-right: 1.35rem;
-    padding-left: 1.35rem;
-}
-
-.brand-logo {
-    width: 38px;
-    height: 38px;
-    border-radius: var(--app-radius);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 0.82rem;
-    color: #ecfeff;
-    background: var(--app-primary);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-}
-
-.brand-copy strong {
-    font-size: 0.98rem;
-    line-height: 1.05;
-    letter-spacing: 0;
 }
 
 .brand-copy small {
@@ -73,35 +50,34 @@ a {
     font-size: 0.78rem;
 }
 
+.brand-img,
+.brand-img-lg {
+    display: block;
+    object-fit: contain;
+    border-radius: var(--app-radius);
+}
+
+.brand-img {
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+}
+
+.brand-img-lg {
+    width: 96px;
+    height: 96px;
+}
+
 .user-pill {
     min-height: 34px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.75rem 0.25rem 0.3rem;
+    padding: 0.25rem 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     color: #fff;
     background: rgba(255, 255, 255, 0.08);
 }
 
-.user-initial {
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    color: #0f172a;
-    font-size: 0.76rem;
-    font-weight: 800;
-    background: #e2e8f0;
-}
-
-.app-logout {
-    border-color: transparent;
-    color: #0f172a;
-}
+/* ===== Sidebar ===== */
 
 .app-sidebar {
     position: sticky;
@@ -146,10 +122,6 @@ a {
     background: rgba(20, 184, 166, 0.16);
 }
 
-.app-sidebar .text-white-50 {
-    color: #b6c2cf !important;
-}
-
 .nav-mark {
     width: 24px;
     height: 24px;
@@ -157,20 +129,12 @@ a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
     color: #ecfeff;
-    font-size: 0.72rem;
-    font-weight: 800;
-    background: rgba(20, 184, 166, 0.22);
+    font-size: 0.85rem;
+    line-height: 1;
 }
 
-.nav-mark-sub {
-    width: 20px;
-    height: 20px;
-    flex-basis: 20px;
-    font-size: 0.66rem;
-    background: rgba(148, 163, 184, 0.18);
-}
+/* ===== Konten ===== */
 
 .col-md-10.p-4 {
     min-height: calc(100vh - var(--app-navbar-height));
@@ -178,89 +142,7 @@ a {
     background: var(--app-bg);
 }
 
-h3,
-h4 {
-    margin: 0 0 1rem;
-    padding: 0;
-    border: 0;
-    color: #111827;
-    font-weight: 800;
-    font-size: 1.35rem;
-    line-height: 1.2;
-}
-
-h5 {
-    color: #111827;
-    font-weight: 700;
-}
-
-label {
-    margin-bottom: 0.35rem;
-    color: #374151;
-    font-weight: 700;
-}
-
-.card {
-    border: 1px solid var(--app-border);
-    border-radius: var(--app-radius);
-    box-shadow: var(--app-shadow);
-    overflow: hidden;
-}
-
-.card-header {
-    border-bottom: 1px solid var(--app-border);
-    font-weight: 800;
-}
-
-.card-header.bg-primary,
-.card-header.bg-info,
-.card-header.bg-success,
-.card-header.bg-dark {
-    background: #0f172a !important;
-    color: #fff !important;
-}
-
-.card-header.bg-warning {
-    background: #fef3c7 !important;
-    color: #78350f !important;
-}
-
-.table-responsive {
-    border-radius: var(--app-radius);
-}
-
-.table {
-    margin-bottom: 0;
-    color: var(--app-text);
-    vertical-align: middle;
-}
-
-.table-bordered > :not(caption) > * {
-    border-color: var(--app-border);
-}
-
-.table thead th {
-    padding: 0.72rem 0.85rem;
-    border-bottom: 1px solid var(--app-border);
-    color: #475569;
-    font-size: 0.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    background: #eef3f8 !important;
-}
-
-.table tbody td,
-.table tbody th {
-    padding: 0.75rem 0.85rem;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) > * {
-    --bs-table-bg-type: #fafcff;
-}
-
-.table tbody tr:hover > * {
-    background: #f1f7ff;
-}
+/* ===== Komponen ===== */
 
 .btn {
     border-radius: 7px;
@@ -268,104 +150,24 @@ label {
     box-shadow: none !important;
 }
 
-.btn-primary,
-.btn-success,
-.btn-info {
-    border-color: var(--app-primary);
-    background: var(--app-primary);
-}
-
-.btn-primary:hover,
-.btn-success:hover,
-.btn-info:hover {
-    border-color: var(--app-primary-dark);
-    background: var(--app-primary-dark);
-}
-
-.btn-outline-primary {
-    color: var(--app-primary);
-    border-color: var(--app-primary);
-}
-
-.btn-outline-primary:hover {
-    border-color: var(--app-primary);
-    background: var(--app-primary);
-}
-
-.btn-warning {
-    border-color: #f59e0b;
-    color: #111827;
-    background: #fbbf24;
-}
-
-.btn-danger {
-    border-color: var(--app-danger);
-    background: var(--app-danger);
-}
-
-.btn-dark {
-    border-color: #111827;
-    background: #111827;
-}
-
 .form-control,
 .form-select {
     border-color: #cbd5e1;
-    border-radius: 7px;
 }
 
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--app-primary);
-    box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.15);
+.table-bordered > :not(caption) > * {
+    border-color: var(--app-border);
 }
 
-.alert {
-    border-radius: var(--app-radius);
-    border-width: 1px;
-}
-
-.badge {
-    border-radius: 999px;
-    padding: 0.42em 0.7em;
-    font-weight: 800;
-}
-
-.page-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-
-.page-toolbar .btn,
-.page-actions .btn {
-    white-space: nowrap;
-}
-
-.metric-card {
-    min-height: 116px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1rem;
-}
-
-.metric-label {
-    color: var(--app-muted);
+.table thead th {
+    color: #475569;
     font-size: 0.8rem;
     font-weight: 800;
     text-transform: uppercase;
+    background: #eef3f8 !important;
 }
 
-.metric-value {
-    margin: 0.25rem 0 0;
-    color: #0f172a;
-    font-size: 2rem;
-    font-weight: 800;
-    line-height: 1;
-}
+/* ===== Login ===== */
 
 .login-shell {
     min-height: 100vh;
@@ -382,24 +184,11 @@ label {
     background: rgba(255, 255, 255, 0.96);
 }
 
-.login-title {
-    border: 0;
-    margin-bottom: 0.2rem;
-}
-
-.login-subtitle {
-    margin: 0;
-    color: var(--app-muted);
-}
+/* ===== Responsive ===== */
 
 @media (max-width: 767.98px) {
     :root {
         --app-navbar-height: 62px;
-    }
-
-    .app-navbar .container-fluid {
-        padding-right: 0.85rem;
-        padding-left: 0.85rem;
     }
 
     .brand-copy small {
@@ -414,15 +203,6 @@ label {
 
     .col-md-10.p-4 {
         padding: 1rem !important;
-    }
-
-    .page-toolbar {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .page-toolbar .btn {
-        width: 100%;
     }
 
     .table thead th,

@@ -12,7 +12,7 @@ if (isset($_SESSION['id_user'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login - SPK Supplier</title>
+    <title>Login - Solides</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="<?php echo BASE_URL; ?>/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo BASE_URL; ?>/assets/css/custom.css" rel="stylesheet">
@@ -24,9 +24,8 @@ if (isset($_SESSION['id_user'])) {
         <div class="card login-card shadow p-4">
 
             <div class="text-center mb-3">
-                <div class="brand-logo mx-auto mb-2">SPK</div>
-                <h4 class="login-title">SPK Supplier</h4>
-                <p class="login-subtitle">Masuk untuk mengelola keputusan supplier proyek.</p>
+                <img src="<?php echo BASE_URL; ?>/assets/logo-solides.png" alt="SOLIDES" class="brand-img-lg mx-auto mb-2">
+                <h4 class="fw-bold mb-1">SOLIDES</h4>
             </div>
 
             <?php if (isset($_GET['error'])): ?>
@@ -38,7 +37,7 @@ if (isset($_SESSION['id_user'])) {
             <form method="POST" action="<?php echo BASE_URL; ?>/auth/proses_login.php">
 
                 <div class="mb-3">
-                    <label>Username</label>
+                    <label class="form-label">Username</label>
                     <input 
                         type="text" 
                         name="username" 
@@ -49,7 +48,7 @@ if (isset($_SESSION['id_user'])) {
                 </div>
 
                 <div class="mb-3">
-                    <label>Password</label>
+                    <label class="form-label">Password</label>
                     <input 
                         type="password" 
                         name="password" 

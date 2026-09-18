@@ -17,60 +17,66 @@ include '../layouts/sidebar.php';
 
 <div class="col-md-10 p-4">
 
-    <div class="page-toolbar">
-        <div>
-            <h3>Dashboard</h3>
-        </div>
+    <div class="mb-3">
+        <h3 class="fw-bold mb-0">Dashboard</h3>
     </div>
 
     <div class="row g-3">
 
         <div class="col-md-3">
-            <div class="card metric-card">
-                <span class="metric-label">Proyek</span>
-                <strong class="metric-value"><?= $total_proyek; ?></strong>
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-uppercase small fw-semibold text-secondary">Proyek</span>
+                    <strong class="fs-2 fw-bold"><?= $total_proyek; ?></strong>
+                </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card metric-card">
-                <span class="metric-label">Supplier</span>
-                <strong class="metric-value"><?= $total_supplier; ?></strong>
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-uppercase small fw-semibold text-secondary">Supplier</span>
+                    <strong class="fs-2 fw-bold"><?= $total_supplier; ?></strong>
+                </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card metric-card">
-                <span class="metric-label">Kriteria</span>
-                <strong class="metric-value"><?= $total_kriteria; ?></strong>
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-uppercase small fw-semibold text-secondary">Kriteria</span>
+                    <strong class="fs-2 fw-bold"><?= $total_kriteria; ?></strong>
+                </div>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card metric-card">
-                <span class="metric-label">Perhitungan</span>
-                <strong class="metric-value"><?= $total_alternatif; ?></strong>
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-uppercase small fw-semibold text-secondary">Perhitungan</span>
+                    <strong class="fs-2 fw-bold"><?= $total_alternatif; ?></strong>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <div class="card mt-3">
-        <div class="card-header bg-dark text-white">Akses Cepat</div>
+    <div class="card shadow-sm mt-3">
+        <div class="card-header text-bg-dark fw-bold">Akses Cepat</div>
         <div class="card-body">
 
     <?php if ($_SESSION['level'] == 'admin'): ?>
 
-        <div class="d-flex flex-wrap gap-2 page-actions">
+        <div class="d-flex flex-wrap gap-2">
             <a href="<?php echo BASE_URL; ?>/pages/kriteria/index.php" class="btn btn-primary">Kelola Kriteria</a>
             <a href="<?php echo BASE_URL; ?>/pages/supplier/index.php" class="btn btn-primary">Kelola Supplier</a>
-            <a href="<?php echo BASE_URL; ?>/pages/proyek/index.php" class="btn btn-warning">Kelola Proyek</a>
+            <a href="<?php echo BASE_URL; ?>/pages/proyek/index.php" class="btn btn-primary">Kelola Proyek</a>
             <a href="<?php echo BASE_URL; ?>/pages/ahp/input_perbandingan.php" class="btn btn-dark">Input AHP</a>
         </div>
 
     <?php elseif ($_SESSION['level'] == 'pimpinan'): ?>
 
-        <div class="d-flex flex-wrap gap-2 page-actions">
+        <div class="d-flex flex-wrap gap-2">
             <a href="<?php echo BASE_URL; ?>/pages/ranking/index.php" class="btn btn-primary">Lihat Ranking</a>
             <a href="<?php echo BASE_URL; ?>/pages/laporan/index.php" class="btn btn-secondary">Lihat Laporan</a>
         </div>
